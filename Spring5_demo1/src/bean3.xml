@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+<!--    Spring配置文件，注入内部bean和级联赋值-->
+    <bean id="dept1" class="com.ly.bean.Dept">
+        <property name="deptName" value="哈哈啊哈"></property>
+    </bean>
+
+
+
+    <bean id="emp" class="com.ly.bean.Employee">
+        <property name="empName" value="张三"></property>
+        <property name="empGender" value="男"></property>
+        <property name="dep">
+            <!--  bean写在属性里面就是内部bean ，如果写在外面用ref连接就是外部bean     -->
+            <bean id="dept" class="com.ly.bean.Dept">
+                <property name="deptName" value="财务部"></property>
+            </bean>
+        </property>
+    </bean>
+
+<!--    级联赋值 外部bean-->
+    <bean id="emp1" class="com.ly.bean.Employee">
+        <property name="empName" value="李四"></property>
+        <property name="empGender" value="男"></property>
+        <property name="dep" ref="dept1"></property>
+    </bean>
+
+    <!--    级联赋值 外部bean属性值 第二种写法-->
+    <bean id="emp2" class="com.ly.bean.Employee">
+        <property name="empName" value="王五"></property>
+        <property name="empGender" value="男"></property>
+        <property name="dep" ref="dept"></property>
+        <!--其实就是 类.属性 来赋值
+                dep表示  Employee类下的getDep方法，去掉了get 【所有通过property标签来设置必须要用get和set方案】
+                depName 其实就是Dept类下的setDeptName方法-->
+        <property name="dep.deptName" value="保安部"></property>
+    </bean>
+</beans>

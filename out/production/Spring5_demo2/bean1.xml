@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="stu" class="com.ly.spring5.collectionType.Stu">
+        <!--   注入数组属性     -->
+        <property name="courses">
+            <array>
+                <value>英语</value>
+                <value>语文</value>
+                <value>数学</value>
+                <value>化学</value>
+            </array>
+        </property>
+
+
+        <!--   注入List集合属性     -->
+        <property name="list" >
+            <list>
+                <value>list1</value>
+                <value>list2</value>
+                <value>list3</value>
+            </list>
+        </property>
+
+
+        <!--   注入List集合 属性为类对象 -->
+        <property name="courseList" >
+            <list>
+                <ref bean="c1"></ref>
+                <ref bean="c2"></ref>
+            </list>
+        </property>
+
+
+        <!--   注入Map集合属性     -->
+        <property name="maps" >
+            <map>
+                <entry key="k1" value="map1" ></entry>
+                <entry key="k2" value="map2"></entry>
+                <entry key="k3" value="map3"></entry>
+            </map>
+        </property>
+
+        <!--   注入Map集合属性为类对象     -->
+        <property name="mapCourse" >
+            <map>
+                <entry key="k1" value-ref="c1"> </entry>
+                <entry key="k1" value-ref="c2"> </entry>
+            </map>
+        </property>
+
+        <!--   注入Set集合属性     -->
+        <property name="set" >
+            <set>
+                <value>set1</value>
+                <value>set2</value>
+            </set>
+        </property>
+    </bean>
+
+    <bean id="c1" class="com.ly.spring5.collectionType.Course">
+        <property name="cname" value="语文"></property>
+    </bean>
+    <bean id="c2" class="com.ly.spring5.collectionType.Course">
+        <property name="cname" value="数学"></property>
+    </bean>
+</beans>

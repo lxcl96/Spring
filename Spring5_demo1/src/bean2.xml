@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+
+    <!--    注入属性 外部bean-->
+    <!--
+        1、创建UserService和UserDAO对象
+        2、给userService对象的userDao属性注入 外部bean对象 通过唯一id来完成
+    -->
+    <bean id="userService" class="com.ly.service.UserService">
+        <property name="userDao" ref="userDao"></property>
+    </bean>
+    <bean id="userDao" class="com.ly.dao.UserDaoImpl"></bean>
+
+
+</beans>

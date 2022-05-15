@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                            http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+<!--  外部bean    [list集合  注意：需要是同一个类型的才行]-->
+    <bean id="course" class="com.ly.spring5.collectionType.Course">
+        <property name="cname" value="物理"></property>
+    </bean>
+    <!--  list集合注入属性，提取出公共部分  -->
+    <util:list id="list2">
+        <value>list集合</value>
+        <value>哈哈</value>
+    </util:list>
+
+    <util:list id="bookList">
+        <ref bean="course"></ref>
+    </util:list>
+
+    <!--   list集合注入属性 通过ref   [list集合  注意：需要是同一个类型的才行]-->
+    <bean id="book" class="com.ly.spring5.collectionType.Book" scope="prototype">
+        <property name="list" ref="bookList"></property>
+    </bean>
+</beans>

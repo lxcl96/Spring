@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+    <!--配置User类的创建-->
+    <bean id="user" class="com.ly.spring5.User"></bean>
+
+<!--        set方法注入属性-->
+    <bean id="book" class="com.ly.spring5.Book">
+        <property name="bookName" value="猪猪侠"></property>
+        <property name="author" value="GG BOY"></property>
+        <property name="address">
+            <null/>
+        </property>
+<!--        value为 <<南京>>
+            两种方法：
+                1、转义字符 < &lt   > &gt
+                2、CDATA域 CDATA[]
+-->
+        <property name="email">
+            <value><![CDATA[<<南京>>]]></value>
+        </property>
+    </bean>
+
+<!--    p标签 set方法注入属性-->
+<!--    <bean id="book" class="com.ly.spring5.Book" p:author="天龙八部" p:bookName="金庸"></bean>-->
+
+<!--    有参构造器注入属性-->
+    <bean id="order" class="com.ly.spring5.Order">
+<!--        name 属性名称，value自己赋值-->
+<!--        <constructor-arg name="orderName" value="易筋经"></constructor-arg>-->
+        <constructor-arg name="address" value="少林寺"></constructor-arg>
+        <constructor-arg index="0" value="无相神功"></constructor-arg>
+    </bean>
+
+<!--    注入属性 外部bean-->
+
+</beans>

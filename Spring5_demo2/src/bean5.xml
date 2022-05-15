@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!--  自动装配/注入
+        autowire:自动注入，表示注入属性是选择
+			byName :按属性名称注入 【要注入值的属性（如Emp类中的Dept dept）的名字，必须要和xml中bean（如：Dept类）的id值完全相同才可以】
+			byType:按类型进行注入 【同一个xml配置文件中不能有多个相同类型的bean（尽管id不同）】
+			bystructor:按照构造方法进行注入
+			default：默认注入方式
+			-->
+    <bean id="emp" class="com.ly.spring5.autowire.Emp" autowire="byType">
+        <!-- 手动装配/注入-->
+<!--        <property name="dept" ref="dept"></property>-->
+    </bean>
+
+
+    <bean id="dept" class="com.ly.spring5.autowire.Dept"></bean>
+<!--    <bean id="dept1" class="com.ly.spring5.autowire.Dept"></bean>-->
+</beans>
