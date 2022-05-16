@@ -104,11 +104,11 @@ Spring提供IOC容器实现的两个方式：（两个接口）
 
 ***ApplicationContext实现类介绍:***
 
-![](D:\JavaWork\JavaLearing\Spring5\Note\ApplicationContext实现类.PNG)
+![](ApplicationContext实现类.PNG)
 
 ***BeanFactory实现类介绍：***
 
-![](D:\JavaWork\JavaLearing\Spring5\Note\BeanFactory实现类.PNG)
+![](BeanFactory实现类.PNG)
 
 ##### 3、IOC操作Bean管理（基于xml/基于注解）
 
@@ -485,7 +485,7 @@ public void test2() {
 >    }
 >    //xml配置
 >    <bean id="myBean" class="com.ly.spring5.collectionType.facbean.MyBean"></bean>
->           
+>                 
 >    //实际使用获取不同于配置文件的Bean类型,需要传入想要的类class
 >    //获取目标bean
 >    Course myBean = context.getBean("myBean", Course.class);
@@ -807,4 +807,113 @@ private String name;
 ```
 
 ​	3、调用使用
+
+***纯注解开发：***
+
+不使用任何配置文件（包括spring的xml），完全使用注解。
+
+*使用步骤：*
+
++ 创建配置类，来代替配置文件。类上加上一个注解@Configuration表示该类是一个配置类。
+
+  ```java
+  //配置类注解
+  @Configuration
+  //开启组件扫描注解，参数为全类名
+  @ComponentScan(basePackages = {"com.ly.spring5.service","com.ly.spring5.dao"})
+  public class SpringConfig {
+  
+  }
+  ```
+
++ 创建带注解的类，属性等
+
++ 使用（和正常使用xml配置文件有些不同）
+
+  ```java
+  @Test
+  public void test1(){
+      //注解开发 AnnotationConfigApplicationContext 使用注解类
+      ApplicationContext context = new AnnotationConfigApplicationContext(SpringConfig.class);
+      UserService userService = context.getBean("userService", UserService.class);
+      userService.add();
+  }
+  ```
+
+  ------
+
+  ##### AOP编码
+
+  ###### 1、AOP概念
+
+  ​	`aop即面向切面编程，利用aop可以对业务逻辑的各个部分进行隔离，从而使得业务逻辑各部分之间的耦合度降低，提高程序的可重用性，同时提高了开发的效率。`
+
+  ###### 2、AOP底层原理
+
+  `通过创建一个对象1来实现，你要添加到某类2下的功能（被增强功能的对象2）！那么这个对象1就是代理对象`
+
+  ​	（1）有接口情况下的 ，使用JDK动态代理
+
+  ​			`创建接口实现类代理对象(不是new出来的，但是和new出来的效果一样)，增强类的方法。`
+
+  ​	（2）无接口情况下的，使用CGLIB动态代理
+
+  ​			`常规方法，写一个子类继承该类来增强父类功能。`
+
+  ​			`创建子类的代理对象(不是new出来的，但是和new出来的效果一样)，增强类的方法`
+
+  ![](动态代理的两种情况.png)
+
+3、AOP (JDK动态代理实现)
+
+`涉及到的类：`
+
+​		`1、UserDao接口`
+
+​		`2、UserDaoImpl类（需要增强方法的类）`
+
+​		`3、UserDaoProxy 代理对象类 实现InvocationHandler接口（当然也可以用匿名内部类代替），在继承的接口的invoke方法中写入要增强的逻辑代码。`
+
+​		`4、UserService 想要使用增强方法的类,也就是调用Proxy.newProxyInstance()方法的类`
+
+```java
+//1、使用JDK动态代理，需要借助Proxy类里面的方法创建代理对象
+/* 类方法
+	参数：ClassLoader loader 当前类的类加载器【这个类调用代理类，通过newProxyInstance方法生成代理对象，就是想要使用增强方法的类，如UserService类】
+	参数：class<?>[] interfaces  要增强方法的类实现的那个接口的class，可以为多个接口的class
+	参数：InvocationHandler h 多态，直接写这个接口的匿名内部类，或者写实现这个接口的代理类，所以【此处参数为：代理对象，需要在继承接口的invoke方法中写入增强的逻辑代码】
+	
+java.lang.reflect.Proxy.newProxyInstance(ClassLoader loader, class<?>[] interfaces,InvocationHandler h); 
+
+*/
+```
+
+*实现步骤：*
+
+​	1、创建接口，定义方法
+
+```java
+public interface UserDao {
+    int add(int x, int y);
+    String update(String id);
+}
+```
+
+​	2、创建正常使用的接口实现类，实现方法
+
+```java
+public class UserDaoImpl  implements UserDao{
+    @Override
+    public int add(int x, int y) {
+        return x + y;
+    }
+
+    @Override
+    public String update(String id) {
+        return id;
+    }
+}
+```
+
+3、==使用Proxy类创建接口代理对象==
 

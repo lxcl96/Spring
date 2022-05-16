@@ -20,11 +20,11 @@ import javax.annotation.Resource;
 public class UserService {
     //定义dao类型属性
 
-//    @Autowired
-//    @Qualifier(value = "userDaoImplPlus")
+    //@Autowired
+    //@Qualifier(value = "userDaoImplPlus")
 //    private UserDao userDao;
 
-    @Value(value = "名字哈哈哈")
+    @Value(value = "名字哈哈哈" )
     private String name;
     @Resource(name = "userDaoImplPlus")
     private UserDao userDao;
