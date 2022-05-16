@@ -485,7 +485,7 @@ public void test2() {
 >    }
 >    //xml配置
 >    <bean id="myBean" class="com.ly.spring5.collectionType.facbean.MyBean"></bean>
->        
+>           
 >    //实际使用获取不同于配置文件的Bean类型,需要传入想要的类class
 >    //获取目标bean
 >    Course myBean = context.getBean("myBean", Course.class);
@@ -673,10 +673,138 @@ public void test2() {
 </beans>
 ```
 
-
-
 ###### 3.7、IOC操作Bean管理（基于注解）
 
-​	
+​	什么是注解？
 
-​	
+​	答：`1、注解是代码特殊标记，格式：@注解名称(属性名1=属性值1,属性名2=属性值2)`
+
+​			`2、注解可以用于：类上，方法上，属性上`
+
+​			`3、使用注解是为了简化xml配置`
+
+​	***Bean管理 -- 创建对象：***
+
+```java
+/*使用注解创建对象 共四种方法 (默认都是单实例)
+	@Component  表示Spring容器中	普通的对象可以用其创建
+	@Service	一般用于业务逻辑层/service层
+	@Controller	一般用于web层上
+	@Repository	一般用于dao层上
+*/
+```
+
+​	*注解使用步骤：*
+
+​		1、引入依赖包  spring-aop-5.2.6.RELEASE.jar
+
+​		2、必须开启组件扫描 （是为了告诉Spring容器，在哪个类里面加上注解，扫描指定包/文件下的类），`即引入context名称空间 + 开启组件扫描`
+
+```xml
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+    
+    <!-- 开启组件扫描
+        扫描多个包：
+            方法1：逗号隔开
+            方法2：写公共父目录
+
+	开启组件组件扫描细节：
+ 			如：可以进行细致配置同一个包下，哪些可以扫描，哪些不可以扫描
+-->
+    <context:component-scan base-package="com.ly.spring5.service,com.ly.spring5.dao"></context:component-scan>
+    <context:component-scan base-package="com.ly.spring5"></context:component-scan>
+    
+    //实例1
+    <!-- 加上use-default-filters="false" 表示不使用默认的Spring方法进行扫描，如果没加上就是默认使用 -->
+    <context:component-scan base-package="com.ly.spring5" use-default-filters="false">
+        <!-- include包含，指定只扫描com.ly.spring目录下，类型是注解的Component 的类 -->
+        <context:include-filter type="annotation" expression="org.springframework.stereotype.Component"/>
+    </context:component-scan>
+    
+    
+    //实例2
+    <!--使用默认扫描规则 -->
+    <context:component-scan base-package="com.ly.spring5">
+        <!-- 指定不扫描 com.ly.spring5目录下的 注解annotation类型为Component的类-->
+        <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Component"/>
+    </context:component-scan>
+    
+</beans>
+```
+
+​		3、创建被使用类（不是Test类），引入注解
+
+```java
+//value可以省略不写，默认就是类名（首字母小写）
+@Component(value = "userService") ////就是<bean id="" class="">
+public class UserService {
+
+    public void add() {
+        System.out.println("add 方法");
+    }
+}
+```
+
+​		4、使用注解类
+
+```java
+public void test(){
+    ApplicationContext context = new ClassPathXmlApplicationContext("bean1.xml");
+    UserService userService = context.getBean("userService", UserService.class);
+    userService.add();
+}
+```
+
+***Bean管理 -- 属性注入：***
+
+```java
+/*  
+	@AutoWired  根据属性类型 自动注入  【针对对象类型。普通类型不可用】
+	@Qualifier	根据属性名称进行注入，必须和AutoWired注解一起使用	【针对对象类型。普通类型不可用】
+	@Resource	可以根据属性名称，属性类型进行注入	【针对对象类型。普通类型不可用int,Integer等】
+	
+	@Value	注入普通类型属性  【针对普通类型int,Integer等】
+*/
+```
+
+*注解使用步骤：*
+
+​	1、创建service类和dao类，并使用相应注解（@Service  @Repository）
+
+​	2、在service里添加dao属性，并在上面，使用@AutoWired注解
+
+```java
+//根据类型注入
+//定义dao类型属性   不需要添加set方法，因为注解里面已经封装好了
+@Autowired
+private UserDaoImpl userDao;//按实现类定义
+```
+
+```java
+//根据名称注入 [一个接口多个实现类只能根据名称注入]
+@Autowired
+@Qualifier(value = "userDaoImplPlus") //类名首字母小写，如果只有一个实现类则value可以省略
+private UserDao userDao;//按接口定义
+```
+
+```java
+//@Resource	可以根据属性名称，属性类型进行注入 javax包下非Spring包，不推荐使用
+@Resource //根据类型注入
+private UserDao userDao; 
+
+@Resource(name = "userDaoImplPlus")//使用name参数进行名称注入，名称就是类名首字母小写
+private UserDao userDao;
+```
+
+```java
+//@Value 注入普通属性
+@Value(value = "名字哈哈哈")
+private String name;
+```
+
+​	3、调用使用
+
