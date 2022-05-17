@@ -485,7 +485,7 @@ public void test2() {
 >    }
 >    //xml配置
 >    <bean id="myBean" class="com.ly.spring5.collectionType.facbean.MyBean"></bean>
->                    
+>                       
 >    //实际使用获取不同于配置文件的Bean类型,需要传入想要的类class
 >    //获取目标bean
 >    Course myBean = context.getBean("myBean", Course.class);
@@ -848,20 +848,26 @@ private String name;
 
   ​	`aop即面向切面编程，利用aop可以对业务逻辑的各个部分进行隔离，从而使得业务逻辑各部分之间的耦合度降低，提高程序的可重用性，同时提高了开发的效率。`
 
-  ###### 2、AOP底层原理
+  ###### 2、AOP底层原理：动态代理
 
-  `通过创建一个对象1来实现，你要添加到某类2下的功能（被增强功能的对象2）！那么这个对象1就是代理对象`
+  `代理模式原理：使用一个代理将对象包装起来，然后用该代理对象取代原始对象。任何对原始对象的调用都要通过代理。代理对象决定是否以及何时将方法调用转到原始对象上。`
+
+  
+
+  ***动态代理（dynamic proxy）***
+
+  ​	`利用Java的反射技术(Java Reflection)，在运行时创建一个实现某些给定接口的新类（也称“动态代理类”）及其实例（对象）,代理的是接口(Interfaces)，不是类(Class)，也不是抽象类。在运行时才知道具体的实现，spring aop就是此原理。`
 
   ​	（1）有接口情况下的 ，使用JDK动态代理
 
   ​			`创建接口实现类代理对象(不是new出来的，但是和new出来的效果一样)，增强类的方法。`
 
   ​	（2）无接口情况下的，使用CGLIB动态代理
-
+  
   ​			`常规方法，写一个子类继承该类来增强父类功能。`
-
+  
   ​			`创建子类的代理对象(不是new出来的，但是和new出来的效果一样)，增强类的方法`
-
+  
   ![](动态代理的两种情况.png)
 
 3、AOP (JDK动态代理实现)
@@ -879,7 +885,7 @@ private String name;
 ```java
 //1、使用JDK动态代理，需要借助Proxy类里面的方法创建代理对象
 /* 类方法
-	参数：ClassLoader loader 当前类的类加载器【这个类调用代理类，通过newProxyInstance方法生成代理对象，就是想要使用增强方法的类，如UserService类】
+	参数：ClassLoader loader 被代理类的类加载器【UserDaoImpl.class.getclassloader()】
 	参数：class<?>[] interfaces  要增强方法的类实现的那个接口的class，可以为多个接口的class
 	参数：InvocationHandler h 多态，直接写这个接口的匿名内部类，或者写实现这个接口的代理类，所以【此处参数为：代理对象，需要在继承接口的invoke方法中写入增强的逻辑代码】
 	
@@ -978,8 +984,29 @@ public class UserService {
             ***总结：代理类型就是将 ”要增强的类类型UserDaoImpl（通过newProxyInstance参数传递进去userDao）“，”经过包装成代理类UserDaoProxy类型（即增加了要增强的方法）“，
          ”然后把UserDaoProxy类型的对象再转换成代理总父类Proxy类型（编译类型为：代理类Proxy类型，运行类型为：要增强的类类型UserDaoImpl）“，”最后为了通用性就把返回类型改成了Object类型“
 
+//**造的是代理类，所以不能用被代理类UserDaoImpl接收 否则代理类和被代理类就是同一类型了。返回的是代理类，只是代理类也实现了UserDaoImpl所实现的接口，但不是同一类型所以用其父UserDao接收（多态）。
          */
-        UserDao dao = (UserDao)Proxy.newProxyInstance(UserService.class.getClassLoader(), interfaces, new UserDaoProxy(userDao));
+        
+         //得到将生成的代理对象类$Proxy0.class文件  看看结构就明白了为什么会调用自动调用invoke方法了，注意：必须要在生成代理对象前才有效
+        System.getProperties().put("sun.misc.ProxyGenerator.saveGeneratedFiles", "true");
+        //如果强转成UserDaoImpl会报错，因为代理类和被代理类类型不相同 只是实现了相同的接口
+        UserDao dao = (UserDao)Proxy.newProxyInstance(userDao.getClass().class.getClassLoader(), interfaces, new UserDaoProxy(userDao));
+        
+        //获取到代理对象编译类型为UserDao，但是实际运行类型为class com.sun.proxy.$Proxy0 里面定义有与被代理类相同的方法名（因为都是实现同一个接口），所以调用的add方法实际上是调用$Proxy0下的add方法，又因为这是包装过的方法，所以里面自动调用了invoke方法
+        System.out.println(dao.getClass());
+
+        Field[] declaredFields = dao.getClass().getDeclaredFields();
+        System.out.println("代理实际运行为 class com.sun.proxy.$Proxy0 有字段：");
+        for (Field declaredField : declaredFields) {
+            System.out.println(declaredField);
+        }
+        System.out.println("代理实际运行为 class com.sun.proxy.$Proxy0 有方法：" );
+        Method[] declaredMethods = dao.getClass().getDeclaredMethods();
+        for (Method declaredMethod : declaredMethods) {
+            System.out.println(declaredMethod);
+        }
+        System.out.println("===================================================");
+        //调用增强方法
         //调用增强方法
         int add = dao.add(1, 2);
         System.out.println(add);
@@ -990,3 +1017,8 @@ public class UserService {
 ​			newProxyInstance方法返回代理对象的类型结构如图：
 
 ![](AOP有借口的动态代理.jpg)
+
+​	生成的代理对象实际运行类型为：class com.sun.proxy.$Proxy0 ，运行类保存在文件 [$Proxy0.class](.) 中。核心add方法截图如下：
+
+![](动态代理对象内部代码.jpg)
+

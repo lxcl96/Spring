@@ -1,5 +1,6 @@
 package com.ly.spring5;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -35,11 +36,34 @@ public class UserService {
             ***总结：代理类型就是将 ”要增强的类类型UserDaoImpl（通过newProxyInstance参数传递进去userDao）“，”经过包装成代理类UserDaoProxy类型（即增加了要增强的方法）“，
          ”然后把UserDaoProxy类型的对象再转换成代理总父类Proxy类型（编译类型为：代理类Proxy类型，运行类型为：要增强的类类型UserDaoImpl）“，”最后为了通用性就把返回类型改成了Object类型“
 
+         //**造的是代理类，所以不能用被代理类UserDaoImpl接收 否则代理类和被代理类就是同一类型了。返回的是代理类，只是代理类也实现了UserDaoImpl所实现的接口，但不是同一类型所以用其父UserDao接收（多态）。
          */
+
+        System.out.println(userDao.getClass().getClassLoader() == userDao.getClass().getClassLoader());
+
+        //得到将生成的代理对象类$Proxy0.class文件  看看结构就明白了
+        System.getProperties().put("sun.misc.ProxyGenerator.saveGeneratedFiles", "true"); //jdk1.8之前用
+        //System.getProperties().put("jdk.proxy.ProxyGenerator.saveGeneratedFiles", "true");//jdk1.8之后用
+        //如果强转成UserDaoImpl会报错，因为代理类和被代理类类型不相同 只是实现了相同的接口
         UserDao dao = (UserDao)Proxy.newProxyInstance(UserService.class.getClassLoader(), interfaces, new UserDaoProxy(userDao));
+        System.out.println(dao.getClass());
+
+        Field[] declaredFields = dao.getClass().getDeclaredFields();
+        System.out.println("代理实际运行为 class com.sun.proxy.$Proxy0 有字段：");
+        for (Field declaredField : declaredFields) {
+            System.out.println(declaredField);
+        }
+        System.out.println("代理实际运行为 class com.sun.proxy.$Proxy0 有方法：" );
+        Method[] declaredMethods = dao.getClass().getDeclaredMethods();
+        for (Method declaredMethod : declaredMethods) {
+            System.out.println(declaredMethod);
+        }
+        System.out.println("===================================================");
+
         //调用增强方法
         int add = dao.add(1, 2);
         System.out.println(add);
+
     }
 }
 
@@ -52,7 +76,6 @@ class UserDaoProxy implements InvocationHandler {
         this.userDao = userDao;
     }
 
-
     @Override
     /**
      * @param proxy 代理对象
@@ -60,6 +83,7 @@ class UserDaoProxy implements InvocationHandler {
      * @param args 表示传递的参数
      */
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        System.out.println(proxy.getClass());
         //比如想增强UserDaoImpl中的add 方法，即：在调用add方法前 输出add方法前逻辑
         System.out.println("add方法前逻辑，当前方法名为：" + method.getName() + ",参数为：" + Arrays.toString(args));
 
@@ -69,7 +93,6 @@ class UserDaoProxy implements InvocationHandler {
 
         //比如想增强UserDaoImpl中的add 方法，即：在调用add方法后 输出add方法后逻辑
         System.out.println("add方法后逻辑，当前方法名为：" + method.getName() + ",参数为：" + Arrays.toString(args));
-
         //返回原方法的返回值，或者自己额外处理的
         return res;
     }
