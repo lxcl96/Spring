@@ -485,7 +485,7 @@ public void test2() {
 >    }
 >    //xml配置
 >    <bean id="myBean" class="com.ly.spring5.collectionType.facbean.MyBean"></bean>
->                 
+>                    
 >    //实际使用获取不同于配置文件的Bean类型,需要传入想要的类class
 >    //获取目标bean
 >    Course myBean = context.getBean("myBean", Course.class);
@@ -915,5 +915,78 @@ public class UserDaoImpl  implements UserDao{
 }
 ```
 
-3、==使用Proxy类创建接口代理对象==
+3、==定义代理对象类（或者使用匿名内部类），继承接口 InvocationHandler ，并在继承的invoke方法中书写需要增强的逻辑代码，需要传递参数，不然怎么增强到指定的UserDaoImpl类中==
 
+```java
+class UserDaoProxy implements InvocationHandler {
+
+    //把需要增强的类传递过来，即UserDaoImpl类，因为要增强的就是它
+    private UserDaoImpl userDao;
+    //方法1 有参构造器传递，指定增强哪个类（如果为了通用，UserDaoImpl可以改成Object）
+    public UserDaoProxy(UserDaoImpl userDao) {
+        this.userDao = userDao;
+    }
+
+
+    @Override
+    /**
+     * @param proxy 代理对象
+     * @param method 表示当前需要增强的方法，如add
+     * @param args 表示传递的参数
+     */
+    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        //比如想增强UserDaoImpl中的add 方法，即：在调用add方法前 输出add方法前逻辑
+        System.out.println("add方法前逻辑，当前方法名为：" + method.getName() + ",参数为：" + Arrays.toString(args));
+        
+        //需要被增强的方法 即UserDaoImpl中的add方法 (对象就是传递过来的UserDaoImpl对象，参数就是args)
+        Object res = method.invoke(userDao, args);
+        
+
+        //比如想增强UserDaoImpl中的add 方法，即：在调用add方法后 输出add方法后逻辑
+        System.out.println("add方法后逻辑，当前方法名为：" + method.getName() + ",参数为：" + Arrays.toString(args));
+        
+        //返回原方法的返回值，或者自己额外处理的 所以此处为Integer类型
+        return res;
+    }
+}
+```
+
+4、==在想要使用增强放的地方如：Service层UserService类中使用Proxy类的newProxyInstance方法创建接口代理对象调用,不是直接new==
+
+```java
+public class UserService {
+    public static void main(String[] args) {
+        //创建接口实现类的代理对象
+        Class[] interfaces = {UserDao.class};
+
+        /*
+
+         方法1：使用匿名内部类（这个类就是代理对象类）
+        Proxy.newProxyInstance(JDKProxy.class.getClassLoader(), interfaces, new InvocationHandler() {
+            @Override
+            public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+                return null;
+            }
+        })
+        */
+
+        UserDaoImpl userDao = new UserDaoImpl();
+        //方法2：使用一个实现类（这个类就是代理对象类，代理对象可以转换成接口UserDao）  ====》看看康师傅的动态代理
+        //返回的 代理对象的类型 实际运行类型就是UserDaoImpl（编译类型为：代理类Proxy类型）即要增强的类类型，而UserDaoImpl（编译类型为：代理类Proxy类型）里面是代理对象类型即UserDaoProxy包装而来，而UserDaoProxy又是由UserDAo包装而来的
+
+        /*
+            ***总结：代理类型就是将 ”要增强的类类型UserDaoImpl（通过newProxyInstance参数传递进去userDao）“，”经过包装成代理类UserDaoProxy类型（即增加了要增强的方法）“，
+         ”然后把UserDaoProxy类型的对象再转换成代理总父类Proxy类型（编译类型为：代理类Proxy类型，运行类型为：要增强的类类型UserDaoImpl）“，”最后为了通用性就把返回类型改成了Object类型“
+
+         */
+        UserDao dao = (UserDao)Proxy.newProxyInstance(UserService.class.getClassLoader(), interfaces, new UserDaoProxy(userDao));
+        //调用增强方法
+        int add = dao.add(1, 2);
+        System.out.println(add);
+    }
+}
+```
+
+​			newProxyInstance方法返回代理对象的类型结构如图：
+
+![](AOP有借口的动态代理.jpg)
