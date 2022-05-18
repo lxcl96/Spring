@@ -487,7 +487,7 @@ public void test2() {
 >    }
 >    //xml配置
 >    <bean id="myBean" class="com.ly.spring5.collectionType.facbean.MyBean"></bean>
->                                
+>                                   
 >    //实际使用获取不同于配置文件的Bean类型,需要传入想要的类class
 >    //获取目标bean
 >    Course myBean = context.getBean("myBean", Course.class);
@@ -1034,8 +1034,8 @@ public class UserService {
 
   通知的5种类型：
 
-  + 前置通知：表示在被代理类中的被增强方法前执行，如：add前
-  + 后置通知：表示在被代理类中的被增强方法后执行，如：add后
+  + 前置通知@Before：表示在被代理类中的被增强方法前执行，如：add前
+  + 后置通知@AfterRetuen：表示在被代理类中的被增强方法后执行，如：add后
   + 环绕通知：表示在被代理类中的被增强方法前、后均执行，如：add前、后
   + 异常通知：表示在被代理类中的被增强方法执行时出现异常执行，如：add方法出现异常后执行
   + 最终通知：类似finally，表示在被代理类中的被增强方法执行无论是否出现异常最后都会执行，如：add无论是否出现异常都会执行
@@ -1087,4 +1087,45 @@ execution(* com.ly.dao.UserDaoImpl.*(..))
 //增强com.ly.dao里所有类 包括类中中的所有方法
 execution(* com.ly.dao.*.*(..))
 ```
+
+## 6、Spring AOP操作（基于注解的AspectJ）
+
++ `创建被代理类及其方法`
+
++ `创建一个代理类，同时定义增强逻辑`
+
++ `进行通知（增强逻辑）配置`
+
+  ```java
+  //1、在Spring配置文件中，开启注解扫描 （xml或注解均可）
+  <!--    开启组件扫描需要先 引入context名称空间-->
+  <context:component-scan base-package="com.ly.spring5"></context:component-scan>
+  <!--    引入aop名称空间,和context完全一样-->
+  //2、使用注解（4个任意选一个）创建代理类 和 被代理类对象
+  
+  //3、在增强类上添加注解@Aspect
+  //4、在spring配置文件中开启生成代理对象 （去注解扫描目录下找Aspect注解，然后生成代理对象）
+  <!--    开启AspectJ 生成代理对象-->
+  <aop:aspectj-autoproxy></aop:aspectj-autoproxy>
+  //5、配置不同类型的通知 即：在增强类的里面，在作为通知方法的上面加上通知类型注解，使用切入点表达式进行配置（就将代理类和被代理类关联起来了）
+  //前置通知  java代码
+      @Before(value = "execution(* com.ly.spring5.aopAnno.User.add(..)))")
+      public void before() {
+          System.out.println("before");
+      }
+  
+  //6、测试使用
+  public void test1(){
+          ApplicationContext context = new ClassPathXmlApplicationContext("bean1.xml");
+      //返回的肯定是User类型 因为要代理就是他而且也没有其父接口
+          User user = context.getBean("user", User.class);
+          user.add();
+      }
+  ```
+
++ 
+
+7、Spring AOP操作（基于xml的AspectJ）
+
+
 
