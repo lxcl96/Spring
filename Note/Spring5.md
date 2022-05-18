@@ -1,12 +1,12 @@
 # Spring概念
 
-##### 1、Spring框架是一个轻量级开源的JavaEE应用程序框架
+## 1、Spring框架是一个轻量级开源的JavaEE应用程序框架
 
 ​			`轻量级：依赖jar包数量比较少、体积比较小，使用过程中不依赖其他的组件，可以单独使用。`
 
-##### 2、Spring可以解决企业应用开发的复杂性，即框架概念。
+## 2、Spring可以解决企业应用开发的复杂性，即框架概念。
 
-##### 3、Spring中两个核心部分：***IOC和AOP***
+## 3、Spring中两个核心部分：***IOC和AOP***
 
 ​	**IOC：**Inversion of Control `即控制反转。`
 
@@ -16,7 +16,7 @@
 
 ​		`作用：不修改源代码进行功能增强`
 
-##### 4、Spring框架特点
+## 4、Spring框架特点
 
  + 方便解耦，简化开发
  + AOP编程支持
@@ -29,19 +29,19 @@
 
 # Spring入门案例
 
-##### 1、spring版本 5.2.6GA
+## 1、spring版本 5.2.6GA
 
-##### 2、下载地址：[repo.spring.io](https://repo.spring.io/ui/native/release/org/springframework/spring)
+## 2、下载地址：[repo.spring.io](https://repo.spring.io/ui/native/release/org/springframework/spring)
 
-##### 3、建个普通Java工程
+## 3、建个普通Java工程
 
-##### 4、导入spring框架基础包（必须的4个）
+## 4、导入spring框架基础包（必须的4个）
 
 ​	`Beans,Core,Context,Expression`
 
 ![](D:\JavaWork\JavaLearing\Spring5\Note\Spring5模块.bmp)
 
-##### 5、使用spring方式创建对象，创建Spring配置文件，在配置文件配置要创建的对象。
+## 5、使用spring方式创建对象，创建Spring配置文件，在配置文件配置要创建的对象。
 
  + Spring配置文件是xml格式
 
@@ -50,7 +50,7 @@
 <bean id="user" class="com.ly.spring5.User"></bean>
 ```
 
-##### 6、测试代码
+## 6、测试代码
 
 ```java
  //1、加载spring的配置文件
@@ -72,7 +72,7 @@ user.add();
 >
 > 入门案例就是IOC实现
 
-##### 1、IOC底层原理
+## 1、IOC底层原理
 
 演变：普通调用（高耦合） =>工厂模式（中耦合）==>IOC（低耦合）
 
@@ -80,7 +80,7 @@ user.add();
 > + 工厂设计模式：解耦合
 > + 反射
 
-##### 2、IOC接口（BeanFactory）
+## 2、IOC接口（BeanFactory）
 
 `IOC思想基于IOC容器，而IOC容器底层就是对象工厂`
 
@@ -118,9 +118,11 @@ Spring提供IOC容器实现的两个方式：（两个接口）
 
 ​	`（2）Spring属性注入，代替类中的set方法`
 
-###### 3.1、IOC操作Bean管理（基于xml）
+## 3、IOC操作Bean管理
 
-​	***Bean管理基于xml方式创建对象*：**
+### 3.1、IOC操作Bean管理（基于xml）
+
+#### 	***Bean管理基于xml方式创建对象*：**
 
 ​		2. `在Spring配置文件中，使用bean标签，标签里添加对应属性即可。`
 
@@ -140,7 +142,7 @@ Spring提供IOC容器实现的两个方式：（两个接口）
 
 ​	2. `Spring创建对象，默认使用无参数构造器`
 
-​	***Bean管理基于xml方式注入属性：***
+#### 	***Bean管理基于xml方式注入属性：***
 
 ​		`DI：Dependency Injection 是IOC容器中一种具体实现，表示依赖注入即注入属性。需要在创建对象的基础上实现。`
 
@@ -208,7 +210,7 @@ public void test2() {
 </beans>
 ```
 
-***xml注入其他类型属性：***
+#### ***xml注入其他类型属性：***
 
 ​	==1、字面量：定义属性时赋值，或者通过<Property>的set方法复制的都均叫做字面量。==
 
@@ -446,7 +448,7 @@ public void test2() {
          </bean>
      ```
 
-###### 3.2、IOC操作Bean管理-- 工厂bean（FactoryBean）
+### 3.2、IOC操作Bean管理-- 工厂bean（FactoryBean）
 
 注意：FactoryBean非IOC接口BeanFactory，它本质上是Bean。
 
@@ -485,7 +487,7 @@ public void test2() {
 >    }
 >    //xml配置
 >    <bean id="myBean" class="com.ly.spring5.collectionType.facbean.MyBean"></bean>
->                       
+>                                
 >    //实际使用获取不同于配置文件的Bean类型,需要传入想要的类class
 >    //获取目标bean
 >    Course myBean = context.getBean("myBean", Course.class);
@@ -497,7 +499,7 @@ public void test2() {
 >
 >    `使用FactoryBean创建隐藏了一些实例化bean的细节，给上层应用带来便利.`
 
-###### 3.3、IOC操作Bean管理 （Bean作用域）
+### 3.3、IOC操作Bean管理 （Bean作用域）
 
 在Spring里面可以设置创建的bean是单实例还是多实例。Spring中默认创建的bean都是单实例对象。
 
@@ -524,7 +526,7 @@ public void test2() {
  + ==设置scope="singleton"时，加载Spring配置文件时就会创建单实例对象。==
  + ==设置scope="prototype"时，不是在加载spring配置文件时创建实例对象，而是在调用getBean方法时创建多实例对象。==
 
-###### 3.4、IOC操作Bean管理 （Bean生命周期）
+### 3.4、IOC操作Bean管理 （Bean生命周期）
 
 生命周期：对象从创建到销毁的过程
 
@@ -548,7 +550,7 @@ public void test2() {
 > </bean>
 > ```
 
-***bean生命周期 --前置/后置处理器***
+#### ***bean生命周期 --前置/后置处理器***
 
 更详细的生命周期，可以细分为7步：`（在调用第3步之前和之后分别会调用后置处理器）`
 
@@ -604,7 +606,7 @@ public void test2() {
 >
 > 
 
-###### 3.5、IOC操作Bean管理（基于xml的 自动装配）
+### 3.5、IOC操作Bean管理（基于xml的 自动装配）
 
 ​	什么是自动装配？
 
@@ -631,7 +633,7 @@ public void test2() {
 	<bean id="dept1" class="com.ly.spring5.autowire.Dept"></bean>
 ```
 
-###### 3.6、IOC操作Bean管理（外部属性文件）
+### 3.6、IOC操作Bean管理（外部属性文件）
 
 即把属性的配置写在外部文件中，不再放在xml中的property标签。
 
@@ -673,7 +675,7 @@ public void test2() {
 </beans>
 ```
 
-###### 3.7、IOC操作Bean管理（基于注解）
+### 3.7、IOC操作Bean管理（基于注解）
 
 ​	什么是注解？
 
@@ -683,7 +685,7 @@ public void test2() {
 
 ​			`3、使用注解是为了简化xml配置`
 
-​	***Bean管理 -- 创建对象：***
+#### 	***Bean管理 -- 创建对象：***
 
 ```java
 /*使用注解创建对象 共四种方法 (默认都是单实例)
@@ -759,7 +761,7 @@ public void test(){
 }
 ```
 
-***Bean管理 -- 属性注入：***
+#### ***Bean管理 -- 属性注入：***
 
 ```java
 /*  
@@ -808,7 +810,7 @@ private String name;
 
 ​	3、调用使用
 
-***纯注解开发：***
+#### ***纯注解开发：***
 
 不使用任何配置文件（包括spring的xml），完全使用注解。
 
@@ -842,19 +844,19 @@ private String name;
 
   ------
 
-  ##### AOP编码
+# AOP编码
 
-  ###### 1、AOP概念
+## 	1、AOP概念
 
   ​	`aop即面向切面编程，利用aop可以对业务逻辑的各个部分进行隔离，从而使得业务逻辑各部分之间的耦合度降低，提高程序的可重用性，同时提高了开发的效率。`
 
-  ###### 2、AOP底层原理：动态代理
+  ## 2、AOP底层原理：动态代理
 
   `代理模式原理：使用一个代理将对象包装起来，然后用该代理对象取代原始对象。任何对原始对象的调用都要通过代理。代理对象决定是否以及何时将方法调用转到原始对象上。`
 
   
 
-  ***动态代理（dynamic proxy）***
+###   ***动态代理（dynamic proxy）***
 
   ​	`利用Java的反射技术(Java Reflection)，在运行时创建一个实现某些给定接口的新类（也称“动态代理类”）及其实例（对象）,代理的是接口(Interfaces)，不是类(Class)，也不是抽象类。在运行时才知道具体的实现，spring aop就是此原理。`
 
@@ -863,14 +865,14 @@ private String name;
   ​			`创建接口实现类代理对象(不是new出来的，但是和new出来的效果一样)，增强类的方法。`
 
   ​	（2）无接口情况下的，使用CGLIB动态代理
-  
+
   ​			`常规方法，写一个子类继承该类来增强父类功能。`
-  
+
   ​			`创建子类的代理对象(不是new出来的，但是和new出来的效果一样)，增强类的方法`
-  
+
   ![](动态代理的两种情况.png)
 
-3、AOP (JDK动态代理实现)
+## 3、AOP (JDK动态代理实现)
 
 `涉及到的类：`
 
@@ -1021,4 +1023,68 @@ public class UserService {
 ​	生成的代理对象实际运行类型为：class com.sun.proxy.$Proxy0 ，运行类保存在文件 [$Proxy0.class](.) 中。核心add方法截图如下：
 
 ![](动态代理对象内部代码.jpg)
+
+## 4、AOP操作相关的术语
+
++ ***连接点：***`被代理类中的可被增强的方法就叫连接点，如：add，update`
+
++ ***切入点：***`被代理类中实际被增强的方法就叫切入点，如：add`
+
++ ***通知（增强）：***`代理类invoke方法中，实际增强的逻辑代码就叫通知/增强（不包括被代理类的add）`
+
+  通知的5种类型：
+
+  + 前置通知：表示在被代理类中的被增强方法前执行，如：add前
+  + 后置通知：表示在被代理类中的被增强方法后执行，如：add后
+  + 环绕通知：表示在被代理类中的被增强方法前、后均执行，如：add前、后
+  + 异常通知：表示在被代理类中的被增强方法执行时出现异常执行，如：add方法出现异常后执行
+  + 最终通知：类似finally，表示在被代理类中的被增强方法执行无论是否出现异常最后都会执行，如：add无论是否出现异常都会执行
+
++ ***切面：***`是动作过程，指把通知应用到切入点的过程叫切面，如：把权限判断加入到用户登录中的过程就叫做切面`
+
+## 	5、AOP操作（准备）
+
+​		1、***Spring框架一般基于AspectJ实现AOP操作。***
+
+​			AspectJ：不是Spring框架中的组成部分，而是一个独立的AOP框架，一般和Spring搭配使用进行AOP操作。
+
+​		2、**基于AspectJ的AOP操作：***
+
+​			(1)基于xml配置文件
+
+​			(2)基于注解方法
+
+​		3、***在项目工程中引入AOP相关的依赖包***
+
+```java
+spring-aop-5.2.6.RELEASE.jar
+spring-aspects-5.2.6.RELEASE.jar
+com.springsource.net.sf.cglib-2.2.0.jar
+com.springsource.org.aopalliance-1.0.0.jar
+com.springsource.org.aspectj.weaver-1.6.8.RELEASE.jar
+```
+​		4、***切入点表达式***
+
+==切入点表达式作用：可以告诉Spring对哪个类里面哪个方法进行增强==
+
+切入点表达式语法：
+
+​	execution([权限修饰符] \[返回类型] [类全路径].\[方法名称]([参数列表]))
+
+​			\* 表示任意修饰符 后有空格
+
+​			如果没有返回值可以省略不写 后有空格
+
+​			.. 表示参数列表
+
+```java
+//增强com.ly.dao.UserDaoImpl 下的 add方法
+execution(public int com.ly.dao.UserDaoImpl.add(..)
+   
+//增强UserDaoImpl类里所有方法
+execution(* com.ly.dao.UserDaoImpl.*(..))
+          
+//增强com.ly.dao里所有类 包括类中中的所有方法
+execution(* com.ly.dao.*.*(..))
+```
 
