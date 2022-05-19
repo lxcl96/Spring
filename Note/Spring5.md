@@ -487,7 +487,7 @@ public void test2() {
 >    }
 >    //xml配置
 >    <bean id="myBean" class="com.ly.spring5.collectionType.facbean.MyBean"></bean>
->                                         
+>                                               
 >    //实际使用获取不同于配置文件的Bean类型,需要传入想要的类class
 >    //获取目标bean
 >    Course myBean = context.getBean("myBean", Course.class);
@@ -873,7 +873,7 @@ private String name;
 
   ![](动态代理的两种情况.png)
 
-## 3、AOP (JDK动态代理实现)
+## 3、AOP (JDK动态代理实现 Spring默认)
 
 `涉及到的类：`
 
@@ -1173,11 +1173,179 @@ execution(* com.ly.dao.*.*(..))
   public class PersonProxy{...}
   ```
 
+
+## 7、Spring AOP操作（基于xml的AspectJ）
+
++ 创建被代理类和代理类，及其增强方法
+
++ 在xml文件中创建两个类的bean对象
+
++ 在xml配置文件中 配置切入点表达式
+
++ 编写方法测试
+
+  ```xml
+  <!--    引入aop 名称空间-->
+  <!--创建两个类的对象-->
+  <bean id="bookDao" class="aopxml.BookDao"></bean>
+  <bean id="bookDaoProxy" class="aopxml.BookDaoProxy"></bean>
+  
+  <!--    配置切入点,切入点可以统一配置，也可以切面的 内部定义通知类型时定义-->
+  /*
+  强制使用CGLIB，指定proxy-target-class = "true" 或者 基于注解@EnableAspectJAutoProxy(proxyTargetClass = true)
+  */
+  <aop:config>
+      <aop:pointcut id="check" expression="execution(* aopxml.BookDao.delBook(..))"/>
+  
+      <!--  配置切面     ref指向增强类 -->
+      <aop:aspect ref="bookDaoProxy" >
+  
+          <!-- 配置增强的 逻辑方法   此处为前置通知   pointcut-ref是提取公共切入点表达式-->
+          <aop:before method="check" pointcut-ref="check"></aop:before>
+      </aop:aspect>
+  </aop:config>
+      
+  ```
+
+## 8、Spring AOP操作 （基于完全注解的Aspect）
+
+```java
+//其他和基于注解的操作一样，就是需要额外建立一个配置类 并使用注解@EnableAspectJAutoProxy 开启aspect自动代理
+/*
+强制使用CGLIB，指定proxy-target-class = "true" 或者 基于注解@EnableAspectJAutoProxy(proxyTargetClass = true)
+*/
+
+@Configuration
+@ComponentScan(basePackages = "fullAnnationAop")
+//开启aop自动代理
+@EnableAspectJAutoProxy
+public class ProxyConfig {
+}
+```
+
+# JDBCTemplate
+
+JDBCTemplate是Spring框架对JDBC进行封装，使用它方便对数据库进行操作。
+
+## 1、准备工作
+
++ 引入相关jar包
+
+  `mysql-connector-java-5.1.7-bin.jar，spring-jdbc-5.2.6.RELEASE.jar，spring-tx-5.2.6.RELEASE.jar，spring-orm-5.2.6.RELEASE.jar，druid-1.1.9.jar`
+
++ 在spring配置文件中配置连接池
+
+  ```xml
+  <!--    配置连接池信息-->
+      <bean id="dateSource" class="com.alibaba.druid.pool.DruidDataSource" destroy-method="close">
+  <!--        <property name="url" value="jdbc:mysql://localhost:3306/user_db"></property>-->
+          <property name="url" value="jdbc:mysql:///user_db"></property> <!--默认3306可以省略 -->
+          <property name="password" value="123456"></property>
+          <property name="username" value="root"></property>
+          <property name="driverClassName" value="com.mysql.jdbc.Driver"></property>
+      </bean>
+  ```
+
++ 配置JDBCTemplate对象，注入DataSource （即配置的数据库连接池对象）
+
+  ```xml
+  <!--  创建JDBCTemplate bean对象-->
+  <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+  <!--   通过set方法 注入数据源信息 因为里面的构造器调用的也是父类setDataSource方法 和他自身没关系，set和构造器都可以-->
+  <property name="dataSource" ref="dateSource"></property>
+  </bean>
+  ```
+
++ 使用JdbcTemplate
+
+  ​	`service（@service）注入dao（@Reposity），dao（@Reposity）注入模板(xml中配置好了，看上面) 用注解方式`
+
+  ```java
+  //注入dao
+  @Autowired
+  private BookDao bookDao;
+  
+  //注入JdbcTemplate
+  @Autowired //会自动找到xml配置文件中的 对于bean
+  private JdbcTemplate jdbcTemplate;
+  ```
+
   
 
-+ 
+## 2、JDBCTemplate操作数据库
 
-7、Spring AOP操作（基于xml的AspectJ）
+### （1）增加/删除/修改操作
 
+> a：创建对应表的实体类，pojo/bean/entity
+>
+> b：编写service和dao操作
+>
+> ​	dao里面进行数据添加操作
+>
+> ```java
+> String sql = "insert into t_book values (?,?,?)";
+> int update = jdbcTemplate.update(sql, book.getBook_id(), book.getBook_name(), book.getBook_status());
+> ```
+>
+> 
 
+### （2）查询操作
 
+> + 单行单列查询  queryForObject
+>
+>   ```java
+>   public Object selectScalar(Integer id) {
+>       String sql = "select book_name from t_book where book_id=?";
+>       //单行单列查询
+>       return jdbcTemplate.queryForObject(sql, String.class, id);
+>   }
+>   ```
+>
+> + 单行多列查询  queryForObject
+>
+>   ```java
+>   public Book selectSingle(Integer id) {
+>       String sql = "select * from t_book where book_id=?";
+>       //和apache工具类似 包装一个Bean
+>       RowMapper<Book> rowMapper = new BeanPropertyRowMapper<>(Book.class);
+>       return jdbcTemplate.queryForObject(sql, rowMapper, id);
+>   }
+>   ```
+>
+> + 多行多列查询   query
+>
+>   ```java
+>   public List<Book> selectMany() {
+>       String sql = "select * from t_book";
+>       return jdbcTemplate.query(sql,new BeanPropertyRowMapper<Book>(Book.class));
+>   }
+>   ```
+>
+> + 多行单列查询  queryForList
+>
+>   ```java
+>   public List<String> selectScalarForMany() {
+>       String sql = "select book_name from t_book";
+>       return jdbcTemplate.queryForList(sql,String.class);
+>   }
+>   ```
+>
+> + 批量操作  batchUpdate
+>
+>   ```java
+>   public int[] batchUpdate(Book[] books) {
+>       String sql = "insert into t_book values(?,?,?)";
+>       List<Object[]> list = new ArrayList<>();
+>       for (Book book : books) {
+>           list.add(new Object[]{book.getBook_id(),book.getBook_name(),book.getBook_status()});
+>       }
+>       //batchUpdate 底层做了封装，会对集合遍历，然后集合中的每一项都是一个object数组，object数组里的内容就是sql的参数（会自动f）
+>       return jdbcTemplate.batchUpdate(sql,list);
+>   }
+>   ```
+>
+> + 
+>
+>   
+
+​			

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+<!--    引入aop 名称空间-->
+    <!--创建两个类的对象-->
+    <bean id="bookDao" class="aopxml.BookDao"></bean>
+    <bean id="bookDaoProxy" class="aopxml.BookDaoProxy"></bean>
+
+<!--    配置切入点-->
+    <aop:config>
+        <aop:pointcut id="check" expression="execution(* aopxml.BookDao.delBook(..))"/>
+
+        <!--  配置切面     ref指向增强类 -->
+        <aop:aspect ref="bookDaoProxy" >
+
+            <!-- 配置增强的 逻辑方法   此处为前置通知   pointcut-ref是提取公共切入点表达式-->
+            <aop:before method="check" pointcut-ref="check"></aop:before>
+        </aop:aspect>
+    </aop:config>
+    
+
+
+</beans>
