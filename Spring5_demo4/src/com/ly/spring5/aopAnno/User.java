@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class User {
     public void add() {
+
         System.out.println("User 类的 add方法");
     }
 }

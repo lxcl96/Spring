@@ -487,7 +487,7 @@ public void test2() {
 >    }
 >    //xml配置
 >    <bean id="myBean" class="com.ly.spring5.collectionType.facbean.MyBean"></bean>
->                                   
+>                                         
 >    //实际使用获取不同于配置文件的Bean类型,需要传入想要的类class
 >    //获取目标bean
 >    Course myBean = context.getBean("myBean", Course.class);
@@ -765,6 +765,7 @@ public void test(){
 
 ```java
 /*  
+	有类先找类，没有类再找叫这个名字接口的实现类
 	@AutoWired  根据属性类型 自动注入  【针对对象类型。普通类型不可用】
 	@Qualifier	根据属性名称进行注入，必须和AutoWired注解一起使用	【针对对象类型。普通类型不可用】
 	@Resource	可以根据属性名称，属性类型进行注入	【针对对象类型。普通类型不可用int,Integer等】
@@ -795,7 +796,7 @@ private UserDao userDao;//按接口定义
 
 ```java
 //@Resource	可以根据属性名称，属性类型进行注入 javax包下非Spring包，不推荐使用
-@Resource //根据类型注入
+@Resource //根据类型注入  新建的类上面别忘记加上注解
 private UserDao userDao; 
 
 @Resource(name = "userDaoImplPlus")//使用name参数进行名称注入，名称就是类名首字母小写
@@ -810,7 +811,7 @@ private String name;
 
 ​	3、调用使用
 
-#### ***纯注解开发：***
+#### ***纯注解开发：需要单独创建一个扫描类***
 
 不使用任何配置文件（包括spring的xml），完全使用注解。
 
@@ -1034,11 +1035,27 @@ public class UserService {
 
   通知的5种类型：
 
-  + 前置通知@Before：表示在被代理类中的被增强方法前执行，如：add前
-  + 后置通知@AfterRetuen：表示在被代理类中的被增强方法后执行，如：add后
-  + 环绕通知：表示在被代理类中的被增强方法前、后均执行，如：add前、后
-  + 异常通知：表示在被代理类中的被增强方法执行时出现异常执行，如：add方法出现异常后执行
-  + 最终通知：类似finally，表示在被代理类中的被增强方法执行无论是否出现异常最后都会执行，如：add无论是否出现异常都会执行
+​			==执行顺序：==
+
+​			==先执行@Around中 增强方法 前面逻辑==
+
+​			==然后执行@before方法==
+
+​			==然后执行被增强的方法==
+
+​			==然后执行@Around中 增强方法 后面逻辑==
+
+​			==然后执行@After中方法,`这个方法一定会执行的`==
+
+​			==然后执行@AfterReturning中方法==
+
+==只有出现异常时 才会执行 @AfterThrowing方法==
+
+  + 前置通知`@Before`：表示在被代理类中的被增强方法前执行，如：add前
+  + 后置通知`@AfterReturning`：表示在被代理类中的被增强方法后执行，如：add后
+  + 环绕通知`@Around`：表示在被代理类中的被增强方法前、后均执行，如：add前、后
+  + 异常通知`AfterThrowing`：表示在被代理类中的被增强方法执行时出现异常执行，如：add方法出现异常后执行
+  + 最终通知`@After`：类似finally，表示在被代理类中的被增强方法执行无论是否出现异常最后都会执行，如：add无论是否出现异常都会执行
 
 + ***切面：***`是动作过程，指把通知应用到切入点的过程叫切面，如：把权限判断加入到用户登录中的过程就叫做切面`
 
@@ -1103,7 +1120,8 @@ execution(* com.ly.dao.*.*(..))
   <!--    引入aop名称空间,和context完全一样-->
   //2、使用注解（4个任意选一个）创建代理类 和 被代理类对象
   
-  //3、在增强类上添加注解@Aspect
+  //3、在增强类上添加注解 @Aspect 和@Component 右Spring生成对象 （有了@Aspect注解就不用实现InvocationHandler借口了，因为里面已经封装好了）
+      
   //4、在spring配置文件中开启生成代理对象 （去注解扫描目录下找Aspect注解，然后生成代理对象）
   <!--    开启AspectJ 生成代理对象-->
   <aop:aspectj-autoproxy></aop:aspectj-autoproxy>
@@ -1122,6 +1140,40 @@ execution(* com.ly.dao.*.*(..))
           user.add();
       }
   ```
+
++ `提取相同的切入点表达式 如：前/后/环绕/异常//最终通知中的 表达式`
+
+  ==方法：定义一个方法，使用注解@Pointcut 其中value值为相同的切入点表达式==
+
+  ```Java
+  //使用@Pointcut 定义相同切入点 方法
+  @Pointcut(value = "execution(* com.ly.spring5.aopAnno.User.add(..)))")
+  public void pointyDemo() {}
+  
+  //前置通知 直接调用切入点方法
+  @Before(value = "pointyDemo()")
+  public void before() {
+      System.out.println("before");
+  }
+  ```
+
++ `如果有多个增强类对同一方法进行增强，使用注解 @Order(int) 则可以设置代理类的优先级`
+
+  ==@Order(优先级数字)==：数字越小，优先级越高 从0开始
+
+  ```java
+  @Component
+  @Aspect
+  @Order(0)
+  public class UserProxy {...}
+  //先执行UserProxy类方法，然后执行Person类方法 【注意是相同通知类型的先执行UserProxy，然后执行PersonProxy，不是等UserProxy所以通知执行完才执行PersonProxy 】
+  @Component
+  @Aspect
+  @Order(1)
+  public class PersonProxy{...}
+  ```
+
+  
 
 + 
 
