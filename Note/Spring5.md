@@ -487,7 +487,7 @@ public void test2() {
 >    }
 >    //xml配置
 >    <bean id="myBean" class="com.ly.spring5.collectionType.facbean.MyBean"></bean>
->                                               
+>                                                  
 >    //实际使用获取不同于配置文件的Bean类型,需要传入想要的类class
 >    //获取目标bean
 >    Course myBean = context.getBean("myBean", Course.class);
@@ -1251,8 +1251,8 @@ JDBCTemplate是Spring框架对JDBC进行封装，使用它方便对数据库进�
   ```xml
   <!--  创建JDBCTemplate bean对象-->
   <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
-  <!--   通过set方法 注入数据源信息 因为里面的构造器调用的也是父类setDataSource方法 和他自身没关系，set和构造器都可以-->
-  <property name="dataSource" ref="dateSource"></property>
+  	<!--   通过set方法 注入数据源信息 因为里面的构造器调用的也是父类setDataSource方法 和他自身没关系，set和构造器都可以-->
+  	<property name="dataSource" ref="dateSource"></property>
   </bean>
   ```
 
@@ -1344,8 +1344,87 @@ JDBCTemplate是Spring框架对JDBC进行封装，使用它方便对数据库进�
 >   }
 >   ```
 >
-> + 
->
->   
 
-​			
+# Spring 事务操作
+
+​		事务：是数据库操作的最基本单元，是逻辑上的一组操作，sql操作要么都成功，如果有一个失败则所有的操作都失败。
+
+## 1、事务的四大特性：（ACID特性）
+
+ + 原子性`atomicity`：要么都成功，要么都失败，不可分割。
+ + 一致性`consistency`：操作前后的总量不变，如（银行转账）
+ + 隔离性`isolation`：多个事务操作期间不会相互影响
+ + 持久性`durability`：事务提交后，对数据库的改变是永久的
+
+## 2、事务操作（搭建事务操作环境，如：银行转账）
+
+前提：事务一般都放在service层上
+
+> 1、创建表和数据
+>
+> 2、创建service，dao层结构，完成对象创建
+>
+> ​		service中注入dao，dao中注入jdbc模版，jdbc中注入datasource
+>
+> 3、service和dao分别创建多钱和少钱的方法
+>
+> 4、调用service层方法转钱时，开启事务。`如果有异常，就回滚；如果没有异常，就提交事务。`
+>
+> ```java
+> //Spring中两种事务管理的方法
+> 
+> //方式1：编程式事务管理（类似于apache工具的开启事务方法）
+> 
+> //方式2：声明式事务管理（推荐） 底层：AOP原理
+>   ///2.1 基于注解方法开启事务（推荐）
+> 	
+>  ///2.2基于xml配置文件开启事务
+> ```
+>
+> 5、Spring事务API
+>
+> ​	Spring框架提供了事物管理器接口PlatformTransactionManager，这个接口针对不同的框架提供不同的实现类。
+>
+> ![](事务管理器PlatformTransactionManager接口.PNG)
+
+## 3、事务操作（基于注解  开启事务）
+
++ xml配置文件中创建事务管理器 （创建类：DataSourceTransactionManager，因为是JDBC模版）
+
+  ```xml
+  <!--    创建事务管理器-->
+      <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+  <!--        注入数据源属性-->
+          <property name="dataSource" ref="datasource"></property>
+      </bean>
+  ```
+
++ 在xml配置文件中，开启事务注解 (==需要先引入tx名称空间，和cointext一样==)
+
+  ```xml
+  <!--    开启事务注解 需要引入名称空间tx 和context一样-->
+  <!-- transaction-manager指定创建的事务管理器-->
+  <tx:annotation-driven transaction-manager="transactionManager"></tx:annotation-driven>
+  ```
+
++ 需要在service层类上（获取service类里面方法上），添加事务注解==@Transactional==。这个注解添加到类上面，也可以把这个注解添加到方法上；
+
+  ​	***添加到类上：***`表示该类的所有方法都会进行事务操作` 
+
+  ```java
+  @Service
+  @Transactional
+  public class UserService {...}
+  ```
+
+    *** 添加到方法上：***`表示该类中只有该方法才会进行事务操作` 
+
+  ```java
+  @Transactional
+  public void reduceMoney() {.}
+  ```
+
+  
+
++ 
+
