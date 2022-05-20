@@ -1,4 +1,4 @@
-package com.ly.spring5.dao;
+package com.ly.fullAnnotation.dao;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
  * @Description :
  */
 @Repository
-public class UserDaoImpl implements UserDao {
+public class UserDaoImpl implements UserDao{
 
     @Autowired //自动注入jdbc 但是并没有创建jdbctemplate，之前是xml文件创建的
     private JdbcTemplate jdbcTemplate;

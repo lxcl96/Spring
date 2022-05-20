@@ -487,7 +487,7 @@ public void test2() {
 >    }
 >    //xml配置
 >    <bean id="myBean" class="com.ly.spring5.collectionType.facbean.MyBean"></bean>
->                                                  
+>                                                     
 >    //实际使用获取不同于配置文件的Bean类型,需要传入想要的类class
 >    //获取目标bean
 >    Course myBean = context.getBean("myBean", Course.class);
@@ -1424,7 +1424,234 @@ JDBCTemplate是Spring框架对JDBC进行封装，使用它方便对数据库进�
   public void reduceMoney() {.}
   ```
 
+
+## 4、事务操作 （声明式事务管理参数配置）
+
+​	（1）在service类上添加注解@Transactional，在这个注解里面可以配置事务相关参数
+
+​		`事务方法：是指对数据库表数据进行变化的操作(select不算)`
+
+​		`传播行为：多事务方法直接调用，这个过程是如何进行管理的`
+
+​		`隔离性：就是韩顺平讲的事务脏读等`
+
+​		`脏读：多事务间，一个未提交的事务读取的另一个未提交的事务的数据`
+
+​		`不可重复读：多事务间，一个未提交的事务读取的另一个已提交的事务的数据`
+
+​		`幻读：多事务间，一个未提交的事务读取的另一个已提交的事务添加的数据`
+
+```java
+@Transactional(propagation = Propagation.REQUIRED)  //propagation 表示事务的传播行为
+
+@Transactional(isolation = Isolation.REPEATABLE_READ)  //isolation 表示事务的隔离级别
+
+@Transactional(timeout = -1)  //timeout 表示事务的超时时间，即在规定时间内如果事物没有提交的话就会回滚 （单位是s秒，默认-1不超时）
+
+@Transactional(readOnly = false)  //readOnly 是否只读，默认值为false（即可以select也可以update，del等等），如果设置为true（只能select）
+
+@Transactional(rollbackFor = {NullPointerException.class,ClassNotFoundException.class})  //rollbackFor 回滚 即可以设置如果出现了哪些异常就会回滚
+@Transactional(rollbackForClassName = {"NullPointerException","ClassCastException"})//和上面一样，只不过是类名
+
+
+@Transactional(noRollbackFor = {NullPointerException.class,ClassNotFoundException.class})  //noRollbackFor 不回滚 即可以设置如果出现了哪些异常就不会回滚
+@Transactional(noRollbackForClassName = {"NullPointerException","ClassCastException"})//和上面一样，只不过是类名
+```
+
+​		![](事务传播行为.bmp)
+
+（2）设置事务的隔离性级别 ，来避免脏读，不可重复读和幻读
+
+<img src="事务隔离级别.bmp" style="zoom:150%;" />
+
+## 5、事务操作（基于xml  开启事务）
+
++ 配置service层和dao层bean对象
+
+  ```xml
+  <!--    创建bean对象-->
+      <bean id="userDaoImpl" class="com.ly.spring5xml.dao.UserDaoImpl">
+          <property name="jdbcTemplate" ref="jdbcTemplate"></property>
+      </bean>
+      <bean id="userService" class="com.ly.spring5xml.service.UserService">
+          <property name="userDao" ref="userDaoImpl"></property>
+      </bean>
+  ```
+
++ 配置druid数据库连接池对象
+
+  ```xml
+  <!--创建druid连接池-->
+      <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource">
+          <property name="driverClassName" value="com.mysql.jdbc.Driver"></property>
+          <property name="url" value="jdbc:mysql:///user_db"></property>
+          <property name="username" value="root"></property>
+          <property name="password" value="123456"></property>
+      </bean>
+  ```
+
++ 配置jdbcTemplate对象
+
+  ```xml
+  <!--    创建jdbcTemplate-->
+      <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+          <property name="dataSource" ref="dataSource"></property>
+      </bean>
+  ```
+
++ ==配置事务管理器==
+
+  ```xml
+  <!--    创建事务管理器-->
+      <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+          <property name="dataSource" ref="dataSource"></property>
+      </bean>
+  ```
+
++ ==配置通知（即事务方法）Spring根据切入点把事务加上==
+
+  ```xml
+  <!--    配置通知 通知是事务中的方法 需要引入tx标签-->
+      <tx:advice id="txadvice">
+          <tx:attributes>
+  <!--            配置事务相关参数，指定在哪种规则的方法上面添加事务  name写方法名-->
+              <tx:method name="transerMoney" isolation="REPEATABLE_READ" read-only="false" propagation="REQUIRED"/>
+  <!--            <tx:method name="transer*"/> 或者这样，比表示以transer开头的所以方法-->
+          </tx:attributes>
+      </tx:advice> 
+  ```
+
++ ==配置切入点和切面（即通知）==
+
+  ```xml
+  <!--    配置切入点和切面 需要引入aop标签-->
+      <aop:config>
+  <!--        切入点 此处放事务类  Spring根据切入点把事务加到这里-->
+          <aop:pointcut id="transerMoney" expression="execution(* com.ly.spring5xml.service.UserService.transerMoney(..))"/>
+  <!--        切面 一种是给自己创建的类 一种是给spring注解使用-->
+  <!--        <aop:aspect ref="userService">-->
+  <!--            <aop:before method="" pointcut-ref="transerMoney"></aop:before>-->
+  <!--        </aop:aspect>-->
+          <aop:advisor advice-ref="txadvice" pointcut-ref="transerMoney"></aop:advisor>
+      </aop:config>
+  ```
+
+## 6、事务操作 （完全注解开发）==》即springboot（个人）
+
++ ### 创建配置类需要使用三个注解：
+
+  @Component_scan：开启注解扫描
+
+  @Configuration：标记这是一个spring配置类
+
+  ==@EnableTransactionManager：启动事务管理器，但是并没有创建需要后面单独写方法创建==
+
++ ### ==配置类中创建方法，配置Druid连接池==
+
+  ```java
+  //因为是纯注解所以不能在xml中配置了
   
+  //注解创建数据库连接池 对象 ，使用bean注解 表示对象不是由自己做而是由spring创建，但是配置需要在方法中配置
+  @Bean
+  public DruidDataSource getDruidDataSource() {
+      //也可以用DruidDataSourceFactory。create方法
+      DruidDataSource dataSource = new DruidDataSource();
+      dataSource.setDriverClassName("com.mysql.jdbc.Driver");
+      dataSource.setUrl("jdbc:mysql:///user_db");
+      dataSource.setUsername("root");
+      dataSource.setPassword("123456");
+  
+      return dataSource;
+  }
+  ```
 
-+ 
++ ### ==配置类中创建模板对象 （方法就和创建Druid连接池一模一样了）==
 
+  ```java
+  //创建jdbcTemplate模板
+  @Bean
+  public JdbcTemplate getJdbcTemplate(DataSource dataSource) {
+      JdbcTemplate jdbcTemplate = new JdbcTemplate();
+      /*如果没有传递参数 可以直接调用getDruidDataSource()方法，但是这样会产生一个问题 
+          因为@Bean注解spring会创建一个对象A
+          调用这个方法又会创建一个对象B 那么A就没有用到，spring中就有两个对象了
+          jdbcTemplate.setDataSource(getDruidDataSource());
+      
+       */
+      
+      //推荐使用参数传递 由于有注解@Bean 则参数就表示spring会根据类型自动注入进来
+      jdbcTemplate.setDataSource(dataSource);
+      return jdbcTemplate;
+  }
+  ```
+
++ ==创建事务管理器，代理xml中创建事务管理器（此方法就和创建jdbctemplate方法完全一样）==
+
+  ```java
+  //创建事务管理器
+  @Bean //参数spring会根据类型自动注入
+  public DataSourceTransactionManager getDataSourceTransactionManager(DataSource dataSource) {
+      DataSourceTransactionManager transactionManager = new DataSourceTransactionManager();
+      transactionManager.setDataSource(dataSource);
+      return transactionManager
+  }
+  ```
+
+  ```xml
+  <!--    代理xml中创建事务管理器-->
+      <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+  <!--        注入数据源属性-->
+          <property name="dataSource" ref="datasource"></property>
+      </bean>
+  ```
+
++ 下面就是和非纯注解方式一样了：service层注入dao属性，dao层注入jdbc属性，
+
++ 测试使用
+
+## 7、Spring5框架新功能
+
+文档连接：[33. Spring框架的新功能-Spring Framework 5 中文文档(Spring 5 Reference) (cntofu.com)](https://cntofu.com/book/95/33-what-new-in-the-spring-framework.md)
+
+### （1）整个框架基于Java8，运行时兼容jdk9
+
+### （2）spring5.0框架自带了通用的日志封装，但是可以整合其他日志工具。
+
+spring5已经移除了Log4jConfigListener，官方建议使用Log4j2.(如果想使用log4j则只能降低spring版本)
+
+**spring5整合log4j2日志步骤：**
+
+> * 引入log4j2的依赖jar包  `log4j-api-2.11.2.jar,log4j-core-2.11.2.jar,log4j-slf4j-impl-2.11.2.jar,slf4j-api-1.7.30.jar`
+>
+> * 创建log4j2的配置文件 ：`文件名：log4j2.xml` 实例如下：
+>
+>   `如果日志等级设置为debug：则error，warn，info和debug都会显示`
+>
+>   `如果日志等级设置为info：则error，warn和info都会显示`
+>
+>   ```xml
+>   <?xml version="1.0" encoding="UTF-8"?>
+>   <!--日志级别以及优先级排序: OFF > FATAL > ERROR > WARN > INFO > DEBUG > TRACE > ALL -->
+>   <!--Configuration后面的status用于设置log4j2自身内部的信息输出，可以不设置，当设置成trace时，可以看到log4j2内部各种详细输出-->
+>   <configuration status="INFO">
+>       <!--先定义所有的appender-->
+>       <appenders>
+>           <!--输出日志信息到控制台-->
+>           <console name="Console" target="SYSTEM_OUT">
+>               <!--控制日志输出的格式-->
+>               <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+>           </console>
+>       </appenders>
+>       <!--然后定义logger，只有定义了logger并引入的appender，appender才会生效-->
+>       <!--root：用于指定项目的根日志，如果没有单独指定Logger，则会使用root作为默认的日志输出-->
+>       <loggers>
+>           <root level="info">
+>               <appender-ref ref="Console"/>
+>           </root>
+>       </loggers>
+>   </configuration>
+>   ```
+>
+>   ==jar包和配置文件log4j2.xml(放到src路径下即可)放进去会自动执行日志==
+>
+> * 

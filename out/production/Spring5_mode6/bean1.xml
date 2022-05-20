@@ -27,4 +27,5 @@
 
 <!--    开启事务注解 需要引入名称空间tx 和context一样-->
     <tx:annotation-driven transaction-manager="transactionManager"></tx:annotation-driven>
+
 </beans>
