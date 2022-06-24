@@ -39,7 +39,7 @@
 
 ​	`Beans,Core,Context,Expression`
 
-![](D:\JavaWork\JavaLearing\Spring5\Note\Spring5模块.bmp)
+![](Spring5模块.bmp)
 
 ## 5、使用spring方式创建对象，创建Spring配置文件，在配置文件配置要创建的对象。
 
@@ -96,9 +96,9 @@ Spring提供IOC容器实现的两个方式：（两个接口）
 
 ***两个接口的区别：***
 
-> `1、BeanFactory在加载配置文件时不会同时创建配置文件类对象，仅在调用其方法时才会创建。`
+> ==1、BeanFactory在加载配置文件时不会同时创建配置文件类对象，仅在调用其方法时才会创建。==
 >
-> `2、ApplicationContext在加载配置文件的同时也会创建配置文件类对象。`
+> ==2、ApplicationContext在加载配置文件的同时也会创建配置文件类对象。==
 >
 > 因此：推荐第二种，把创建对象等耗时耗资源都放在服务启动时。
 
@@ -145,6 +145,10 @@ Spring提供IOC容器实现的两个方式：（两个接口）
 #### 	***Bean管理基于xml方式注入属性：***
 
 ​		`DI：Dependency Injection 是IOC容器中一种具体实现，表示依赖注入即注入属性。需要在创建对象的基础上实现。`
+
+> 1、依赖注入是指当一个对象要与其他对象发生依赖关系时，通过抽象来注入所依赖的对象。常用的注入方式有三种，分别是：构造注入，设值注入（Setter注入）和接口注入。
+>
+> 2、把有依赖关系的类放到容器中，解析出这些类的实例，就是依赖注入。目的是实现类的解耦。
 
 ​		**Spring注入两种属性方式：即DI**
 
@@ -323,7 +327,7 @@ public void test2() {
     <property name="dep.deptName" value="保安部"></property>
 </bean>
 
-<!--    级联赋值 外部bean-->
+<!--     外部bean-->
 <bean id="emp1" class="com.ly.bean.Employee">
     <property name="empName" value="李四"></property>
     <property name="empGender" value="男"></property>
@@ -394,7 +398,7 @@ public void test2() {
         <map>
             //和List有些许不同  value-ref="c1"
             <entry key="k1" value-ref="c1"> </entry>
-            <entry key="k1" value-ref="c2"> </entry>
+            <entry key="k2" value-ref="c2"> </entry>
         </map>
     </property>
 </bean> 
@@ -437,7 +441,7 @@ public void test2() {
              <value>list集合</value>
              <value>哈哈</value>
          </util:list>
-     	<!-- --写两个是为了区分 List集合只能放同一类型对象>
+     	<!-- --写两个是为了区分 List集合只能放同一类型对象-->
          <util:list id="bookList">
              <ref bean="course"></ref>
          </util:list>
@@ -487,7 +491,7 @@ public void test2() {
 >    }
 >    //xml配置
 >    <bean id="myBean" class="com.ly.spring5.collectionType.facbean.MyBean"></bean>
->                                                     
+>                                                              
 >    //实际使用获取不同于配置文件的Bean类型,需要传入想要的类class
 >    //获取目标bean
 >    Course myBean = context.getBean("myBean", Course.class);
@@ -552,6 +556,10 @@ public void test2() {
 
 #### ***bean生命周期 --前置/后置处理器***
 
+***可以有多个前置/后置处理器，只要是实现了BeanPostProcessor接口的类都会当作前置/后置处理器。他们执行的顺序就是xml配置文件中的顺序前置（后置倒序）***
+
+
+
 更详细的生命周期，可以细分为7步：`（在调用第3步之前和之后分别会调用后置处理器）`
 
 `前置处理器和后置处理器为同一个方法，只要一个类实现了接口BeanPostProcessor，那么Spring就将其视作处理器。`
@@ -606,18 +614,18 @@ public void test2() {
 >
 > 
 
-### 3.5、IOC操作Bean管理（基于xml的 自动装配）
+### 3.5、IOC操作Bean管理（基于xml的 自动装配@autowire）
 
 ​	什么是自动装配？
 
 ​	答：`通过配置文件的property标签向一个类中注入属性的操作，叫做手动装配。`
 
-​			==`不需要在配置文件中写入property标签，Spring会根据属性类型或属性名称自动完成属性值注入的过程叫做自动装配！`==
+​			==不需要在配置文件中写入property标签，Spring会根据属性类型或属性名称自动完成属性值注入的过程叫做自动装配！==
 
 ```xml
     <!--  自动装配/注入
         autowire:自动注入，表示注入属性是选择
-         byName :按属性名称注入 【要注入值的属性（如Emp类中的Dept dept）的名字，必须要和xml中bean（如：Dept类）的id值完全相同才可以】
+         byName :按属性名称注入 【要注入值的属性（如Emp类中的Dept dept）的名字dept，必须要和xml中bean（如：Dept类）的id值完全相同才可以】
          byType:按类型进行注入 【同一个xml配置文件中不能有多个相同类型的bean（尽管id不同）,否则Spring会报错】
          bystructor:按照构造方法进行注入
          default：默认注入方式
@@ -871,9 +879,9 @@ private String name;
 
   ​			`创建子类的代理对象(不是new出来的，但是和new出来的效果一样)，增强类的方法`
 
-  ![](动态代理的两种情况.png)
+  <img src="动态代理的两种情况.png" style="zoom: 200%;" />
 
-## 3、AOP (JDK动态代理实现 Spring默认)
+## 3、AOP (JDK动态代理实现 Spring默认) -- 实现接口 InvocationHandler
 
 `涉及到的类：`
 
@@ -939,7 +947,7 @@ class UserDaoProxy implements InvocationHandler {
 
     @Override
     /**
-     * @param proxy 代理对象
+     * @param proxy 代理实例
      * @param method 表示当前需要增强的方法，如add
      * @param args 表示传递的参数
      */
@@ -991,7 +999,7 @@ public class UserService {
          */
         
          //得到将生成的代理对象类$Proxy0.class文件  看看结构就明白了为什么会调用自动调用invoke方法了，注意：必须要在生成代理对象前才有效
-        System.getProperties().put("sun.misc.ProxyGenerator.saveGeneratedFiles", "true");
+        System.getProperties().put("sun.misc.ProxyGenerator.saveGeneratedFiles", "true");//放在junit.test方法中不行 y 
         //如果强转成UserDaoImpl会报错，因为代理类和被代理类类型不相同 只是实现了相同的接口
         UserDao dao = (UserDao)Proxy.newProxyInstance(userDao.getClass().class.getClassLoader(), interfaces, new UserDaoProxy(userDao));
         
@@ -1025,6 +1033,133 @@ public class UserService {
 
 ![](动态代理对象内部代码.jpg)
 
+## 3、CGLIB代理 -- 实现接口 MethodInterceptor
+
+​	CGLIB代理通过继承父类，重写方法来实现父类方法的增强！所以如果父类方法是final就无法进行CGLIB方式增强。
+
+`涉及到的类：`
+
++ `FatherClass类（需要被增强方法的类，即父类）`
++ `MyProxyCGLIB类（创建代理的类，等价于UserDaoProxy）`
++ `CGLIBTest测试类（实际使用的地方）`
+
+```java
+//核心方法 MyProxyCGLIB.java
+	/**
+     *
+     * @param o cglib生产的代理对象（即子类）
+     * @param method 被代理类需要增强的方法（父类的被重写方法）
+     * @param objects 被代理类需要增强的方法的参数列表 （父类的被重写方法的参数）
+     * @param methodProxy 代理方法 （子类中重写method的方法）
+     * @return 原方法返回值
+     * @throws Throwable 异常
+     */
+    @Override
+    public Object intercept(Object o, Method method, Object[] objects, MethodProxy methodProxy) throws Throwable {
+        System.out.println("前.。。。。。。。。。。。。。。。。。。");
+        //
+        Object ret = methodProxy.invokeSuper(o, objects);
+        System.out.println("后.。。。。。。。。。。。。。。。。。。");
+        return ret;
+    }
+
+
+//不同于动态代理的额外工具类  -- net.sf.cglib.proxy.Enhancer#Enhancer
+```
+
+实现步骤：
+
+​	1、创建被增强类和方法（父类）
+
+```java
+package com.ly.cglib;
+
+/**
+ * @FileName:FatherClass.class
+ * @Author:ly
+ * @Date:2022/6/24
+ * @Description: 要被增强的方法
+ */
+public class FatherClass {
+
+    public int FatherMethod(String s) {
+        System.out.println("我是CGLIB要被增强的方法，即父类！ s=" + s);
+        return 100;
+    }
+}
+```
+
+2、创建CGLIB代理类
+
+```java
+package com.ly.cglib;
+
+import net.sf.cglib.proxy.MethodInterceptor;
+import net.sf.cglib.proxy.MethodProxy;
+
+import java.lang.reflect.Method;
+
+/**
+ * @FileName:MyProxyCGLIB.class
+ * @Author:ly
+ * @Date:2022/6/24
+ * @Description:
+ */
+public class MyProxyCGLIB implements MethodInterceptor {
+
+    /**
+     *
+     * @param o cglib生产的代理对象（即子类）
+     * @param method 被代理类需要增强的方法（父类的被重写方法）
+     * @param objects 被代理类需要增强的方法的参数列表 （父类的被重写方法的参数）
+     * @param methodProxy 代理方法 （子类中重写method的方法）
+     * @return 原方法返回值
+     * @throws Throwable 异常
+     */
+    @Override
+    public Object intercept(Object o, Method method, Object[] objects, MethodProxy methodProxy) throws Throwable {
+        //增强逻辑
+        System.out.println("前.。。。。。。。。。。。。。。。。。。");
+        //原方法 --注意是invokeSuper 不是invoke
+        Object ret = methodProxy.invokeSuper(o, objects);
+        System.out.println("后.。。。。。。。。。。。。。。。。。。");
+        return ret;
+    }
+}
+```
+
+3、使用（注意需要创建额外的工具类 Enhancer）
+
+```java
+package com.ly.cglib;
+
+import net.sf.cglib.proxy.Enhancer;
+import org.junit.Test;
+
+/**
+ * @FileName:CGLIBTest.class
+ * @Author:ly
+ * @Date:2022/6/24
+ * @Description:
+ */
+public class CGLIBTest {
+    @Test
+    public void test() {
+        //需要工具类 这三步可以集合到CGLIB代理类中 即 MyProxyCGLIB.class
+        Enhancer enhancer = new Enhancer();
+        enhancer.setSuperclass(FatherClass.class);
+        //设置回调类 即CGLIB代理类
+        enhancer.setCallback(new MyProxyCGLIB());
+
+        //创建代理类 即子类
+        FatherClass child = (FatherClass)enhancer.create();
+        child.FatherMethod("儿子");
+    }
+}
+```
+
+两种代理方法的实现/应用场景：AOP
+
 ## 4、AOP操作相关的术语
 
 + ***连接点：***`被代理类中的可被增强的方法就叫连接点，如：add，update`
@@ -1045,7 +1180,7 @@ public class UserService {
 
 ​			==然后执行@Around中 增强方法 后面逻辑==
 
-​			==然后执行@After中方法,`这个方法一定会执行的`==
+​			==然后执行@After中方法,==`这个方法一定会执行的`
 
 ​			==然后执行@AfterReturning中方法==
 
@@ -1118,7 +1253,7 @@ execution(* com.ly.dao.*.*(..))
   <!--    开启组件扫描需要先 引入context名称空间-->
   <context:component-scan base-package="com.ly.spring5"></context:component-scan>
   <!--    引入aop名称空间,和context完全一样-->
-  //2、使用注解（4个任意选一个）创建代理类 和 被代理类对象
+  //2、使用注解@Controller（4个任意选一个）创建代理类 和 被代理类对象
   
   //3、在增强类上添加注解 @Aspect 和@Component 右Spring生成对象 （有了@Aspect注解就不用实现InvocationHandler借口了，因为里面已经封装好了）
       
@@ -1196,7 +1331,13 @@ execution(* com.ly.dao.*.*(..))
   */
   <aop:config>
       <aop:pointcut id="check" expression="execution(* aopxml.BookDao.delBook(..))"/>
-  
+  	
+      
+      <!-- 除了aop:aspect之外还有一种 aop:advisor （advice 通知）
+  	aop:aspect主要用于一般bean，如日志，缓存等
+  	aop:advisor 主要用于事务管理
+  		需要额外的<tx:advice>...</tx:advice>
+  -->
       <!--  配置切面     ref指向增强类 -->
       <aop:aspect ref="bookDaoProxy" >
   
@@ -1261,11 +1402,11 @@ JDBCTemplate是Spring框架对JDBC进行封装，使用它方便对数据库进�
   ​	`service（@service）注入dao（@Reposity），dao（@Reposity）注入模板(xml中配置好了，看上面) 用注解方式`
 
   ```java
-  //注入dao
+  //service  注入dao
   @Autowired
   private BookDao bookDao;
   
-  //注入JdbcTemplate
+  //Reposity  注入JdbcTemplate
   @Autowired //会自动找到xml配置文件中的 对于bean
   private JdbcTemplate jdbcTemplate;
   ```
@@ -1358,7 +1499,7 @@ JDBCTemplate是Spring框架对JDBC进行封装，使用它方便对数据库进�
 
 ## 2、事务操作（搭建事务操作环境，如：银行转账）
 
-前提：事务一般都放在service层上
+==前提：事务一般都放在service层上==
 
 > 1、创建表和数据
 >
@@ -1439,7 +1580,7 @@ JDBCTemplate是Spring框架对JDBC进行封装，使用它方便对数据库进�
 
 ​		`不可重复读：多事务间，一个未提交的事务读取的另一个已提交的事务的数据`
 
-​		`幻读：多事务间，一个未提交的事务读取的另一个已提交的事务添加的数据`
+​		`幻读：多事务间，一个未提交的事务读取的另一个已提交的事务添加(新增)的数据`
 
 ```java
 @Transactional(propagation = Propagation.REQUIRED)  //propagation 表示事务的传播行为
@@ -1511,8 +1652,8 @@ JDBCTemplate是Spring框架对JDBC进行封装，使用它方便对数据库进�
 + ==配置通知（即事务方法）Spring根据切入点把事务加上==
 
   ```xml
-  <!--    配置通知 通知是事务中的方法 需要引入tx标签-->
-      <tx:advice id="txadvice">
+  <!--    配置通知 通知是事务中的方法 需要引入tx标签 默认就是transactionManager，如果不叫这个名字就要手动写好-->
+      <tx:advice id="txadvice" transaction-manager="transactionManager">
           <tx:attributes>
   <!--            配置事务相关参数，指定在哪种规则的方法上面添加事务  name写方法名-->
               <tx:method name="transerMoney" isolation="REPEATABLE_READ" read-only="false" propagation="REQUIRED"/>
@@ -1521,7 +1662,7 @@ JDBCTemplate是Spring框架对JDBC进行封装，使用它方便对数据库进�
       </tx:advice> 
   ```
 
-+ ==配置切入点和切面（即通知）==
++ ==配置切入点和切面==
 
   ```xml
   <!--    配置切入点和切面 需要引入aop标签-->
@@ -1536,7 +1677,7 @@ JDBCTemplate是Spring框架对JDBC进行封装，使用它方便对数据库进�
       </aop:config>
   ```
 
-## 6、事务操作 （完全注解开发）==》即springboot（个人）
+## 6、事务操作 （完全注解开发）==》即springboot（个人版）
 
 + ### 创建配置类需要使用三个注解：
 
