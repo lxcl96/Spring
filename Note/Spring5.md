@@ -491,7 +491,11 @@ public void test2() {
 >    }
 >    //xml配置
 >    <bean id="myBean" class="com.ly.spring5.collectionType.facbean.MyBean"></bean>
+<<<<<<< HEAD
 >                                                              
+=======
+>                                                        
+>>>>>>> 47d287eedbb9912212845ef4c76227f2ea625a65
 >    //实际使用获取不同于配置文件的Bean类型,需要传入想要的类class
 >    //获取目标bean
 >    Course myBean = context.getBean("myBean", Course.class);
@@ -1794,5 +1798,125 @@ spring5已经移除了Log4jConfigListener，官方建议使用Log4j2.(如果想�
 >   ```
 >
 >   ==jar包和配置文件log4j2.xml(放到src路径下即可)放进去会自动执行日志==
+
+### （3）Nullable注解
+
+> Nullable注解可以用于方法上，属性上，参数上面。在方法上Nullable表示可以返回空值，在属性上Nullable表示属性值可以为空，在参数上表示参数可以为空（主要是用来避免空指针异常）
 >
-> * 
+> - `@NonNull可以标注在方法、字段、参数之上，表示对应的值不可以为空`
+> - `@Nullable注解可以标注在方法、字段、参数之上，表示对应的值可以为空`
+>
+> *`主要是用来判断是否显示出空指针警告`，以上两个注解在程序运行的过程中不会起任何作用，只会在IDE、编译器、FindBugs检查、生成文档的时候有做提示；*
+>
+> ```java
+> @Nullable
+> private String name;
+> 
+> public NullableTest(@Nullable String name) {
+>     this.name = name;
+> }
+> 
+> @Nullable
+> public String getName() {
+>     return this.name;
+> }
+> ```
+
+### （4）函数式注册对象
+
+意思就是普通创建对象是直接new出来的，并不是Spring创建出来的，所以Spring实际上不知道有这个对象（xml或注解可以）。函数式注册对象就是把你手动创建的对象告诉Spring，这样Spring就可以自己使用了。
+
+```java
+public void testGenericApplicationContext() {
+        //1、创建Spring函数对象
+        GenericApplicationContext context = new GenericApplicationContext();
+        //2、调用Spring函数对象的refresh()方法 把内容清空准备进行注册
+        context.refresh();
+        //3、注册对象
+        User user1 = new User();
+        System.out.println("user1=" + user1);
+        context.registerBean("user",User.class,() -> user1);
+
+        //4、回去获取到在Spring中手动注册的对象
+        User user = (User) context.getBean("user");
+        System.out.println(user);
+    }
+```
+
+### （5）对JUnit5测试的改进
+
+Spring整合JUnit4
+
++ `引入Spring5测试框架包 spring-test-5.2.6.RELEASE.jar`
+
++ `使用注解，指定测试框架版本，创建测试类`
+
+  ```java
+  package com.ly.test;
+  
+  import com.ly.spring5.service.UserService;
+  
+  import org.junit.Test;
+  import org.junit.runner.RunWith;
+  import org.springframework.beans.factory.annotation.Autowired;
+  import org.springframework.test.context.ContextConfiguration;
+  import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+  
+  @RunWith(SpringJUnit4ClassRunner.class) //指定使用的单元测试框架junit版本
+  @ContextConfiguration("classpath:bean1.xml") //指定配置文件路径创建配置文件类  相对于new ClassPathXmlApplicationContext("bean1.xml")
+  public class JTest4 {
+      @Autowired
+      private UserService userService; //自动注入得到userService对象  代替 new ClassPathXmlApplicationContext("bean1.xml").getBean()方法
+  
+      @Test
+      public void test1() {
+          userService.transerMoney();
+      }
+  }
+  ```
+
+Spring整合JUnit5
+
++ `引入Spring5测试框架包 spring-test-5.2.6.RELEASE.jar,和junit5jar包`
+
++ `使用注解（新的注解@ExtendWith和@ContextConfiguration 当然也可以使用复合注解代替这俩@SpringJunitConfig），指定测试框架版本，创建测试类`
+
+  ```java
+  package com.ly.test;
+  
+  import com.ly.spring5.service.UserService;
+  import org.junit.jupiter.api.Test;
+  import org.junit.jupiter.api.extension.ExtendWith;
+  import org.springframework.beans.factory.annotation.Autowired;
+  import org.springframework.test.context.ContextConfiguration;
+  import org.springframework.test.context.junit.jupiter.SpringExtension;
+  import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
+  
+  //@ExtendWith(SpringExtension.class)
+  //@ContextConfiguration("classpath:bean1.xml")
+      //使用复合注解代替上面两个
+  @SpringJUnitConfig(locations = "classpath:bean1.xml")
+  public class JTest5 {
+      @Autowired
+      private UserService userService;
+  
+      @Test
+      public void test1() {
+          userService.transerMoney();
+      }
+  }
+  ```
+
+### （6）SpringWebFlux模块
+
+***首先需要了解SpringMVC，SpringBoot，Maven，Java8新特性***
+
+1、
+
+2、响应式编程
+
+3、WebFlux执行流程和核心API
+
+4、SpringWebFlux（基于注解编程模型实现）
+
+5、SpringWebFlux（基于函数式模型实现）
