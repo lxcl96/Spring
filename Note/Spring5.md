@@ -491,16 +491,17 @@ public void test2() {
 >    }
 >    //xml配置
 >    <bean id="myBean" class="com.ly.spring5.collectionType.facbean.MyBean"></bean>
-<<<<<<< HEAD
->                                                              
-=======
->                                                        
->>>>>>> 47d287eedbb9912212845ef4c76227f2ea625a65
+> <<<<<<< HEAD
+>
+> =======
+>
+> >>>>>> 47d287eedbb9912212845ef4c76227f2ea625a65
 >    //实际使用获取不同于配置文件的Bean类型,需要传入想要的类class
 >    //获取目标bean
 >    Course myBean = context.getBean("myBean", Course.class);
 >    //获取工厂Bean本身
 >    MyBean bean = context.getBean("&myBean", MyBean.class);
+>    
 >    ```
 >
 >    ==FactoryBean作用：==`FactoryBean 通常是用来创建比较复杂的bean，一般的bean 直接用xml配置即可，但如果一个bean的创建过程中涉及到很多其他的bean 和复杂的逻辑，用xml配置比较困难，这时可以考虑用FactoryBean。`
@@ -1168,9 +1169,9 @@ public class CGLIBTest {
 
 + ***连接点：***`被代理类中的可被增强的方法就叫连接点，如：add，update`
 
-+ ***切入点：***`被代理类中实际被增强的方法就叫切入点，如：add`
++ ***切入点JoinPoint：***`被代理类中实际被增强的方法就叫切入点，如：add`
 
-+ ***通知（增强）：***`代理类invoke方法中，实际增强的逻辑代码就叫通知/增强（不包括被代理类的add）`
++ ***通知（增强）Advice：***`代理类invoke方法中，实际增强的逻辑代码就叫通知/增强（不包括被代理类的add）`
 
   通知的5种类型：
 
@@ -1196,7 +1197,8 @@ public class CGLIBTest {
   + 异常通知`AfterThrowing`：表示在被代理类中的被增强方法执行时出现异常执行，如：add方法出现异常后执行
   + 最终通知`@After`：类似finally，表示在被代理类中的被增强方法执行无论是否出现异常最后都会执行，如：add无论是否出现异常都会执行
 
-+ ***切面：***`是动作过程，指把通知应用到切入点的过程叫切面，如：把权限判断加入到用户登录中的过程就叫做切面`
++ ***切面Aspect：***`我们创建的增强方法类(切面类)，一般类上有注解@Aspect`
++ ***织入（织）Weaving：***`是动作过程，指把切面应用到切入点（目标对象）创建advised 对象的过程，如：把权限判断加入到用户登录中的过程`
 
 ## 	5、AOP操作（准备）
 
@@ -1754,13 +1756,13 @@ JDBCTemplate是Spring框架对JDBC进行封装，使用它方便对数据库进�
 
 + 测试使用
 
-## 7、Spring5框架新功能
+# Spring5框架新功能
 
 文档连接：[33. Spring框架的新功能-Spring Framework 5 中文文档(Spring 5 Reference) (cntofu.com)](https://cntofu.com/book/95/33-what-new-in-the-spring-framework.md)
 
-### （1）整个框架基于Java8，运行时兼容jdk9
+## 1、整个框架基于Java8，运行时兼容jdk9
 
-### （2）spring5.0框架自带了通用的日志封装，但是可以整合其他日志工具。
+## 2、spring5.0框架自带了通用的日志封装，但是可以整合其他日志工具。
 
 spring5已经移除了Log4jConfigListener，官方建议使用Log4j2.(如果想使用log4j则只能降低spring版本)
 
@@ -1799,7 +1801,7 @@ spring5已经移除了Log4jConfigListener，官方建议使用Log4j2.(如果想�
 >
 >   ==jar包和配置文件log4j2.xml(放到src路径下即可)放进去会自动执行日志==
 
-### （3）Nullable注解
+## 3、Nullable注解
 
 > Nullable注解可以用于方法上，属性上，参数上面。在方法上Nullable表示可以返回空值，在属性上Nullable表示属性值可以为空，在参数上表示参数可以为空（主要是用来避免空指针异常）
 >
@@ -1822,7 +1824,7 @@ spring5已经移除了Log4jConfigListener，官方建议使用Log4j2.(如果想�
 > }
 > ```
 
-### （4）函数式注册对象
+## 4、函数式注册对象
 
 意思就是普通创建对象是直接new出来的，并不是Spring创建出来的，所以Spring实际上不知道有这个对象（xml或注解可以）。函数式注册对象就是把你手动创建的对象告诉Spring，这样Spring就可以自己使用了。
 
@@ -1843,7 +1845,7 @@ public void testGenericApplicationContext() {
     }
 ```
 
-### （5）对JUnit5测试的改进
+## 5、对JUnit5测试的改进
 
 Spring整合JUnit4
 
@@ -1907,7 +1909,7 @@ Spring整合JUnit5
   }
   ```
 
-### （6）SpringWebFlux模块
+## 6、SpringWebFlux模块
 
 ***首先需要了解SpringMVC，SpringBoot，Maven，Java8新特性***
 
