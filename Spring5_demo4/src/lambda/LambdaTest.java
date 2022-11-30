@@ -115,7 +115,7 @@ public class LambdaTest {
     public void test6() {
 
         //lambda表达式写法 test5优化
-        Comparator<Integer> comparator1 = (o1,o2) -> Integer.compare(o1,o2);;
+        Comparator<Integer> comparator1 = (o1,o2) -> Integer.compare(o1,o2);
 
         System.out.println(comparator1.compare(22,12));
 

@@ -39,7 +39,7 @@
 
 ​	`Beans,Core,Context,Expression`
 
-![](Spring5模块.bmp)
+<img src='Spring5模块.bmp'>
 
 ## 5、使用spring方式创建对象，创建Spring配置文件，在配置文件配置要创建的对象。
 
@@ -104,11 +104,11 @@ Spring提供IOC容器实现的两个方式：（两个接口）
 
 ***ApplicationContext实现类介绍:***
 
-![](ApplicationContext实现类.PNG)
+<img src='ApplicationContext实现类.PNG'>
 
 ***BeanFactory实现类介绍：***
 
-![](BeanFactory实现类.PNG)
+<img src='BeanFactory实现类.PNG'>
 
 ##### 3、IOC操作Bean管理（基于xml/基于注解）
 
@@ -466,7 +466,7 @@ public void test2() {
 >
 > 2. `实现接口中的方法，在实现方法中定义返回的bean类型`
 >
-> 3. 实际使用context,getBean("id",bean.class)就需要改成实际的bean
+> 3. 实际使用`context.getBean("id",bean.class)`就需要改成实际的bean
 >
 >    ```java
 >    //指定泛型 Course
@@ -491,20 +491,16 @@ public void test2() {
 >    }
 >    //xml配置
 >    <bean id="myBean" class="com.ly.spring5.collectionType.facbean.MyBean"></bean>
-> <<<<<<< HEAD
 >
-> =======
->
-> >>>>>> 47d287eedbb9912212845ef4c76227f2ea625a65
->    //实际使用获取不同于配置文件的Bean类型,需要传入想要的类class
->    //获取目标bean
->    Course myBean = context.getBean("myBean", Course.class);
->    //获取工厂Bean本身
->    MyBean bean = context.getBean("&myBean", MyBean.class);
->    
+>    ```java
+> //实际使用获取不同于配置文件的Bean类型,需要传入想要的类class
+> //获取目标bean
+> Course myBean = context.getBean("myBean", Course.class);
+> //获取工厂Bean本身
+> MyBean bean = context.getBean("&myBean", MyBean.class);
 >    ```
 >
->    ==FactoryBean作用：==`FactoryBean 通常是用来创建比较复杂的bean，一般的bean 直接用xml配置即可，但如果一个bean的创建过程中涉及到很多其他的bean 和复杂的逻辑，用xml配置比较困难，这时可以考虑用FactoryBean。`
+>   ==FactoryBean作用：==`FactoryBean 通常是用来创建比较复杂的bean，一般的bean 直接用xml配置即可，但如果一个bean的创建过程中涉及到很多其他的bean 和复杂的逻辑，用xml配置比较困难，这时可以考虑用FactoryBean。`
 >
 >    `使用FactoryBean创建隐藏了一些实例化bean的细节，给上层应用带来便利.`
 
@@ -1032,11 +1028,11 @@ public class UserService {
 
 ​			newProxyInstance方法返回代理对象的类型结构如图：
 
-![](AOP有借口的动态代理.jpg)
+<img src='AOP有借口的动态代理.jpg'>
 
 ​	生成的代理对象实际运行类型为：class com.sun.proxy.$Proxy0 ，运行类保存在文件 [$Proxy0.class](.) 中。核心add方法截图如下：
 
-![](动态代理对象内部代码.jpg)
+<img src='动态代理对象内部代码.jpg'>
 
 ## 3、CGLIB代理 -- 实现接口 MethodInterceptor
 
@@ -1532,7 +1528,7 @@ JDBCTemplate是Spring框架对JDBC进行封装，使用它方便对数据库进�
 >
 > ​	Spring框架提供了事物管理器接口PlatformTransactionManager，这个接口针对不同的框架提供不同的实现类。
 >
-> ![](事务管理器PlatformTransactionManager接口.PNG)
+> <img src='事务管理器PlatformTransactionManager接口.PNG'>
 
 ## 3、事务操作（基于注解  开启事务）
 
@@ -1605,7 +1601,7 @@ JDBCTemplate是Spring框架对JDBC进行封装，使用它方便对数据库进�
 @Transactional(noRollbackForClassName = {"NullPointerException","ClassCastException"})//和上面一样，只不过是类名
 ```
 
-​		![](事务传播行为.bmp)
+​		<img src='事务传播行为.bmp'>
 
 （2）设置事务的隔离性级别 ，来避免脏读，不可重复读和幻读
 
